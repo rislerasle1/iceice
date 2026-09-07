@@ -73,31 +73,30 @@
     background: radial-gradient(circle, rgba(255,255,255,0.15), transparent 70%);
     border-radius: 50%;
   }
-  .card.now {
-    background: #ffffff;
-    border: 2px solid #cdeede;
-    color: var(--text);
-  }
-  .card.now .now-fill {
-    position: absolute; inset: 0; width: 0%;
-    background: #0d7a4d;
-    transition: width 1s linear;
-    z-index: 0;
-  }
-  .card.now .badge, .card.now .entries { position: relative; z-index: 1; }
-  .card.now .badge {
-    background: rgba(20, 48, 74, 0.08); color: var(--text);
-  }
-  .card.now .badge .dot { background: var(--now-green); }
-  .card.now .entry-time { color: #3d6b86; }
-  .card.now .entry-team { color: var(--text); }
-  .card.now .entry-locker {
-    background: rgba(20, 48, 74, 0.08); border: 1px solid rgba(20, 48, 74, 0.15); color: var(--text);
-  }
-  .card.now .entry-locker .label { color: #3d6b86; }
-  .card.now .card-empty { color: #4a6a86; }
-
+  .card.now { background: linear-gradient(135deg, var(--now-green), #12855a); }
   .card.next { background: linear-gradient(135deg, var(--next-blue), var(--deep-blue)); }
+
+  .progress-track {
+    position: relative; z-index: 1;
+    margin-top: 1vw;
+    height: 0.9vw;
+    background: rgba(255,255,255,0.35);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; width: 0%;
+    background: #0a4d30;
+    border-radius: 999px;
+    transition: width 1s linear;
+  }
+  .progress-label {
+    position: relative; z-index: 1;
+    margin-top: 0.4vw;
+    font-size: 0.85vw;
+    color: rgba(255,255,255,0.85);
+    font-weight: 600;
+  }
 
   .badge {
     display: inline-flex; align-items: center; gap: 0.5vw; align-self: flex-start;
@@ -195,9 +194,12 @@
     <div class="main">
       <div class="cards">
         <div class="card now">
-          <div class="now-fill" id="nowFill"></div>
           <div class="badge"><span class="dot"></span>På isen akkurat nå</div>
           <div class="entries" id="nowEntries"><div class="card-empty">Laster …</div></div>
+          <div class="progress-track" id="progressTrack" style="display:none;">
+            <div class="progress-fill" id="progressFill"></div>
+          </div>
+          <div class="progress-label" id="progressLabel"></div>
         </div>
 
         <div class="card next">
@@ -423,17 +425,25 @@ function tick() {
   // Alle økter som pågår nå (kan være flere samtidig, f.eks. delt is)
   const current = cachedSlots.filter(s => nowMin >= s.start && nowMin < s.end);
 
-  // Progresjonsfylling: fra tidligste start til seneste slutt blant pågående økter
-  const fillEl = document.getElementById("nowFill");
+  // Progresjonsindikator: fra tidligste start til seneste slutt blant pågående økter
+  const track = document.getElementById("progressTrack");
+  const fillBar = document.getElementById("progressFill");
+  const progLabel = document.getElementById("progressLabel");
   if (current.length) {
     const blockStart = Math.min(...current.map(s => s.start));
     const blockEnd = Math.max(...current.map(s => s.end));
     const ratio = blockEnd > blockStart
       ? Math.max(0, Math.min(1, (nowMin - blockStart) / (blockEnd - blockStart)))
       : 1;
-    fillEl.style.width = (ratio * 100).toFixed(1) + "%";
+    const remaining = Math.max(0, blockEnd - nowMin);
+    track.style.display = "block";
+    fillBar.style.width = (ratio * 100).toFixed(0) + "%";
+    progLabel.textContent = remaining > 0
+      ? Math.round(remaining) + " min igjen av økten"
+      : "Økten er ferdig";
   } else {
-    fillEl.style.width = "0%";
+    track.style.display = "none";
+    progLabel.textContent = "";
   }
 
   // Neste starttidspunkt, og ALLE lag som starter da (kan være flere)
