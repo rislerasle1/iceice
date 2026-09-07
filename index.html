@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Istider Lørenhallen – i dag</title>
+<style>
+  :root {
+    --ice-blue: #eaf6ff;
+    --deep-blue: #0d3b66;
+    --next-blue: #1a5a94;
+    --now-green: #1fae6c;
+    --warn: #c0392b;
+    --text: #14304a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: #0a2540; }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--text);
+  }
+
+  .stage {
+    width: 100vw; height: 56.25vw;
+    max-height: 100vh; max-width: 177.78vh;
+    background: linear-gradient(160deg, #dff2ff 0%, #f7fbff 45%, #ffffff 100%);
+    display: flex; flex-direction: column;
+    padding: 2.2vw 2.8vw;
+    overflow: hidden;
+  }
+
+  header { display: flex; align-items: center; justify-content: center; gap: 0.8vw; margin-bottom: 1.6vw; }
+  header .icon { font-size: 2.6vw; }
+  header h1 { font-size: 2.1vw; color: var(--deep-blue); letter-spacing: -0.5px; }
+  header .date { font-size: 1.3vw; color: #4a6a86; font-weight: 500; margin-left: 1vw; }
+
+  .main { display: flex; gap: 1.6vw; flex: 1; min-height: 0; }
+
+  .cards { display: flex; flex-direction: column; gap: 1.4vw; width: 40%; }
+
+  .card {
+    flex: 1; border-radius: 1.4vw; padding: 1.6vw 2vw; color: white;
+    box-shadow: 0 1vw 2vw rgba(13, 59, 102, 0.2);
+    position: relative; overflow: hidden;
+    display: flex; flex-direction: column; justify-content: center;
+    min-height: 0;
+  }
+  .card::before {
+    content: ""; position: absolute; top: -3vw; right: -3vw;
+    width: 12vw; height: 12vw;
+    background: radial-gradient(circle, rgba(255,255,255,0.15), transparent 70%);
+    border-radius: 50%;
+  }
+  .card.now { background: linear-gradient(135deg, var(--now-green), #12855a); }
+  .card.next { background: linear-gradient(135deg, var(--next-blue), var(--deep-blue)); }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 0.5vw; align-self: flex-start;
+    background: rgba(255,255,255,0.22); color: white; font-size: 1vw; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase; padding: 0.4vw 1vw;
+    border-radius: 999px; margin-bottom: 0.9vw;
+  }
+  .card.now .badge .dot {
+    width: 0.6vw; height: 0.6vw; background: white; border-radius: 50%;
+    animation: pulse 1.6s infinite ease-in-out;
+  }
+  @keyframes pulse { 0%,100% { opacity:1; transform:scale(1);} 50% { opacity:0.5; transform:scale(0.8);} }
+
+  .entries { display: flex; flex-direction: column; gap: 0.7vw; overflow-y: auto; }
+  .entry-time { font-size: 1vw; color: rgba(255,255,255,0.85); font-weight: 600; margin-bottom: 0.1vw; }
+  .entry-team { font-size: 1.35vw; font-weight: 800; line-height: 1.2; margin-bottom: 0.5vw; }
+  .entry-locker {
+    display: inline-flex; align-items: center; gap: 0.5vw;
+    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.25);
+    padding: 0.4vw 1vw; border-radius: 0.8vw; font-size: 1.05vw; font-weight: 700;
+  }
+  .entry-locker .label {
+    font-size: 0.7vw; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em;
+    color: rgba(255,255,255,0.85); display: block; margin-bottom: 0.1vw;
+  }
+  .card-empty { font-size: 1.3vw; font-weight: 600; color: rgba(255,255,255,0.9); }
+
+  .list-panel { width: 60%; display: flex; flex-direction: column; min-height: 0; }
+  .list-title { font-size: 1vw; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #4a6a86; margin-bottom: 0.8vw; }
+  .schedule { display: flex; flex-direction: column; gap: 0.55vw; overflow-y: auto; padding-right: 0.3vw; }
+  .slot {
+    display: flex; align-items: center; gap: 1vw; background: white; border-radius: 1vw;
+    padding: 0.65vw 1.2vw; box-shadow: 0 0.15vw 0.6vw rgba(20, 48, 74, 0.06); border: 1px solid #eaf2f8;
+  }
+  .slot.active { border: 2px solid var(--now-green); background: #f2fbf6; }
+  .slot.upcoming { border: 2px solid var(--next-blue); background: #f0f6fc; }
+  .slot-time {
+    min-width: 6.2vw; font-weight: 700; color: var(--deep-blue); font-size: 0.9vw; text-align: center;
+    background: var(--ice-blue); border-radius: 0.6vw; padding: 0.4vw 0.3vw; line-height: 1.3;
+  }
+  .slot.active .slot-time { background: var(--now-green); color: white; }
+  .slot.upcoming .slot-time { background: var(--next-blue); color: white; }
+  .slot-info { flex: 1; min-width: 0; }
+  .slot-team { font-weight: 700; font-size: 0.95vw; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .slot-locker { font-size: 0.8vw; color: #6b88a3; margin-top: 0.1vw; }
+  .slot-locker b { color: var(--deep-blue); }
+
+  .status-msg {
+    font-size: 0.8vw; color: #90a9bd; margin-top: 0.6vw; text-align: center;
+  }
+  .status-msg.error { color: var(--warn); font-weight: 600; }
+
+  footer { text-align: center; margin-top: 0.8vw; font-size: 0.7vw; color: #90a9bd; }
+</style>
+</head>
+<body>
+<div class="stage">
+  <header>
+    <span class="icon">🏒</span>
+    <h1>Istider i Lørenhallen</h1>
+    <span class="date" id="todayLabel">–</span>
+  </header>
+
+  <div class="main">
+    <div class="cards">
+      <div class="card now">
+        <div class="badge"><span class="dot"></span>På isen akkurat nå</div>
+        <div class="entries" id="nowEntries"><div class="card-empty">Laster …</div></div>
+      </div>
+
+      <div class="card next">
+        <div class="badge">Neste ut</div>
+        <div class="entries" id="nextEntries"><div class="card-empty">Laster …</div></div>
+      </div>
+    </div>
+
+    <div class="list-panel">
+      <div class="list-title">Hele dagens is-tider</div>
+      <div class="schedule" id="scheduleList"><div class="card-empty" style="color:#4a6a86;">Laster …</div></div>
+      <div class="status-msg" id="statusMsg"></div>
+      <footer>Kilde: Istider Lørenhallen (Google Regneark) · tinyurl.com/istider · oppdateres automatisk</footer>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============ OPPSETT ============ */
+// Data hentes IKKE direkte fra Google (CORS blokkerer det fra GitHub Pages).
+// I stedet henter en GitHub Action CSV-en server-side hvert 15. min og
+// lagrer den i repoet på denne relative stien, som denne siden leser
+// fra sitt eget opphav (samme domene = ingen CORS-problem).
+const CSV_URL = "data/schedule.csv";
+const REFRESH_DATA_MS = 5 * 60 * 1000;    // sjekk om filen i repoet er oppdatert hvert 5. min
+const REFRESH_CLOCK_MS = 30 * 1000;       // oppdater klokke/nå-neste hvert 30. sek
+
+const NB_WEEKDAYS = ["søn","man","tir","ons","tor","fre","lør"];
+
+/* ============ CSV-PARSER (tåler komma inni anførselstegn) ============ */
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = "", inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ',') { row.push(field); field = ""; }
+      else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ""; }
+      else if (c === '\r') { /* ignore */ }
+      else field += c;
+    }
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+
+/* ============ Hjelpere ============ */
+function toMinutes(t) {
+  if (!t) return null;
+  const m = t.trim().match(/^(\d{1,2}):(\d{2})/);
+  if (!m) return null;
+  return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+}
+
+function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+/* Finn dagens rad-etikett, f.eks "man. 7/9", basert på enhetens klokke */
+function todayLabel(date) {
+  return `${NB_WEEKDAYS[date.getDay()]}. ${date.getDate()}/${date.getMonth() + 1}`;
+}
+
+/* Sjekk om en celle i kolonne A markerer en ny dag, f.eks "man. 7/9" eller "lør 12/9" */
+function matchesDate(cell, date) {
+  if (!cell) return false;
+  const c = cell.trim().toLowerCase();
+  const wd = NB_WEEKDAYS[date.getDay()];
+  const dm = `${date.getDate()}/${date.getMonth() + 1}`;
+  // tåler både "man." og "man" og mellomrom-varianter foran dato
+  const re = new RegExp(`^${wd}\\.?\\s+${dm}\\b`);
+  return re.test(c);
+}
+
+function isWeekHeader(cell) {
+  return !!cell && /^uke\s+\d+/i.test(cell.trim());
+}
+
+/* ============ Hent og tolk data for dagens dato ============ */
+async function fetchTodaysSchedule() {
+  const bustUrl = CSV_URL + (CSV_URL.includes("?") ? "&" : "?") + "t=" + Date.now();
+  const res = await fetch(bustUrl, { cache: "no-store" });
+  if (!res.ok) {
+    throw new Error(
+      "Fant ikke data/schedule.csv (HTTP " + res.status + "). " +
+      "Sjekk at GitHub Action-en har kjørt minst én gang (fanen 'Actions' i repoet)."
+    );
+  }
+  const text = await res.text();
+
+  // Google sender HTML-innloggingsside hvis eksporten ikke er tilgjengelig anonymt
+  if (/<html/i.test(text.slice(0, 200))) {
+    throw new Error("Google-eksporten ba om innlogging da Action-en kjørte. Publiser arket til nett i stedet (se instruksjoner) og bytt URL i workflow-filen.");
+  }
+
+  const rows = parseCSV(text);
+  const now = new Date();
+  const wantedLabel = todayLabel(now);
+
+  let inTodaysBlock = false;
+  const slots = [];
+
+  for (const row of rows) {
+    const colA = (row[0] || "").trim();
+    const fra = (row[1] || "").trim();
+    const til = (row[2] || "").trim();
+    const lag = (row[3] || "").trim();
+    const garderobe = (row[5] || "").trim();
+
+    if (isWeekHeader(colA)) { inTodaysBlock = false; continue; }
+
+    if (colA && matchesDate(colA, now)) {
+      inTodaysBlock = true;
+    } else if (colA && !matchesDate(colA, now)) {
+      // en annen dags rad startet -> vi er ferdig med dagens blokk
+      if (inTodaysBlock) break;
+      inTodaysBlock = false;
+    }
+
+    if (!inTodaysBlock) continue;
+
+    // hopp over tomme/ugyldige rader (f.eks. blanke skillelinjer)
+    if (!fra && !lag) continue;
+
+    const startMin = toMinutes(fra);
+    const endMin = toMinutes(til);
+    if (startMin === null) continue; // rad uten gyldig starttid -> ignorer trygt
+
+    slots.push({
+      from: fra,
+      to: til || "",
+      start: startMin,
+      end: endMin === null ? startMin + 1 : endMin,
+      team: lag || "(ukjent lag)",
+      locker: garderobe || "–",
+    });
+  }
+
+  // sorter alltid på starttid, uansett hvor mange økter det er
+  slots.sort((a, b) => a.start - b.start);
+  return { slots, wantedLabel };
+}
+
+/* ============ Rendering ============ */
+let cachedSlots = [];
+let lastError = null;
+
+function renderEntries(container, list, emptyMsg) {
+  container.innerHTML = "";
+  if (!list.length) {
+    container.innerHTML = `<div class="card-empty">${emptyMsg}</div>`;
+    return;
+  }
+  list.forEach(slot => {
+    const div = document.createElement("div");
+    div.innerHTML = `
+      <div class="entry-time">${slot.from}${slot.to ? " – " + slot.to : ""}</div>
+      <div class="entry-team">${slot.team}</div>
+      <div class="entry-locker"><span><span class="label">Garderobe</span>${slot.locker}</span></div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function tick() {
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+
+  document.getElementById("todayLabel").textContent =
+    now.toLocaleDateString("nb-NO", { weekday: "long", day: "numeric", month: "long" });
+
+  // Alle økter som pågår nå (kan være flere samtidig, f.eks. delt is)
+  const current = cachedSlots.filter(s => nowMin >= s.start && nowMin < s.end);
+
+  // Neste starttidspunkt, og ALLE lag som starter da (kan være flere)
+  const upcomingStarts = cachedSlots.map(s => s.start).filter(t => t > nowMin);
+  const nextStart = upcomingStarts.length ? Math.min(...upcomingStarts) : null;
+  const next = nextStart === null ? [] : cachedSlots.filter(s => s.start === nextStart);
+
+  renderEntries(document.getElementById("nowEntries"), current, "Ingen på isen akkurat nå");
+  renderEntries(document.getElementById("nextEntries"), next, "Ingen flere økter i dag");
+
+  const list = document.getElementById("scheduleList");
+  list.innerHTML = "";
+  if (!cachedSlots.length) {
+    list.innerHTML = `<div class="card-empty" style="color:#4a6a86;">${lastError ? "Fikk ikke hentet data." : "Ingen økter registrert i dag."}</div>`;
+  } else {
+    cachedSlots.forEach(slot => {
+      let cls = "slot";
+      if (nowMin >= slot.start && nowMin < slot.end) cls += " active";
+      else if (nextStart !== null && slot.start === nextStart) cls += " upcoming";
+
+      const div = document.createElement("div");
+      div.className = cls;
+      div.innerHTML = `
+        <div class="slot-time">${slot.from}${slot.to ? "–" + slot.to : ""}</div>
+        <div class="slot-info">
+          <div class="slot-team">${slot.team}</div>
+          <div class="slot-locker">Garderobe <b>${slot.locker}</b></div>
+        </div>
+      `;
+      list.appendChild(div);
+    });
+  }
+
+  const statusEl = document.getElementById("statusMsg");
+  if (lastError) {
+    statusEl.textContent = "⚠ " + lastError;
+    statusEl.className = "status-msg error";
+  } else {
+    statusEl.textContent = "Sist oppdatert " + pad(now.getHours()) + ":" + pad(now.getMinutes());
+    statusEl.className = "status-msg";
+  }
+}
+
+async function refreshData() {
+  try {
+    const { slots } = await fetchTodaysSchedule();
+    cachedSlots = slots;
+    lastError = null;
+  } catch (e) {
+    lastError = e.message || String(e);
+    // behold forrige gyldige data i tilfelle midlertidig nettverksfeil
+  }
+  tick();
+}
+
+refreshData();
+setInterval(refreshData, REFRESH_DATA_MS);
+setInterval(tick, REFRESH_CLOCK_MS);
+</script>
+</body>
+</html>
