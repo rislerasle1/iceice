@@ -14,7 +14,7 @@
     --text: #14304a;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; background: #0a2540; }
+  html, body { height: 100%; background: #f7fbff; }
   body {
     display: flex; align-items: center; justify-content: center;
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
@@ -26,14 +26,35 @@
     max-height: 100vh; max-width: 177.78vh;
     background: linear-gradient(160deg, #dff2ff 0%, #f7fbff 45%, #ffffff 100%);
     display: flex; flex-direction: column;
-    padding: 2.2vw 2.8vw;
     overflow: hidden;
   }
 
-  header { display: flex; align-items: center; justify-content: center; gap: 0.8vw; margin-bottom: 1.6vw; }
-  header .icon { font-size: 2.6vw; }
-  header h1 { font-size: 2.1vw; color: var(--deep-blue); letter-spacing: -0.5px; }
-  header .date { font-size: 1.3vw; color: #4a6a86; font-weight: 500; margin-left: 1vw; }
+  .content { flex: 1; display: flex; flex-direction: column; padding: 1.8vw 2.8vw 0.6vw; min-height: 0; }
+
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1.4vw; gap: 1vw;
+  }
+  .header-side { flex: 1; display: flex; min-width: 0; }
+  .header-side.left { justify-content: flex-start; }
+  .header-side.right { justify-content: flex-end; }
+  .header-center { display: flex; align-items: center; gap: 0.8vw; flex: 0 0 auto; white-space: nowrap; }
+  .header-center .icon { font-size: 2.6vw; }
+  .header-center h1 { font-size: 2.1vw; color: var(--deep-blue); letter-spacing: -0.5px; }
+
+  .clock-block { line-height: 1.1; }
+  .clock-time {
+    font-size: 2.3vw; font-weight: 800; color: var(--deep-blue);
+    font-variant-numeric: tabular-nums; letter-spacing: 0.02em;
+  }
+  .clock-date {
+    font-size: 1.05vw; color: #4a6a86; font-weight: 500;
+    text-transform: capitalize; margin-top: 0.2vw;
+  }
+
+  .logo-block img {
+    max-height: 4.4vw; max-width: 16vw; object-fit: contain;
+  }
 
   .main { display: flex; gap: 1.6vw; flex: 1; min-height: 0; }
 
@@ -52,7 +73,30 @@
     background: radial-gradient(circle, rgba(255,255,255,0.15), transparent 70%);
     border-radius: 50%;
   }
-  .card.now { background: linear-gradient(135deg, var(--now-green), #12855a); }
+  .card.now {
+    background: #ffffff;
+    border: 2px solid #cdeede;
+    color: var(--text);
+  }
+  .card.now .now-fill {
+    position: absolute; inset: 0; width: 0%;
+    background: #0d7a4d;
+    transition: width 1s linear;
+    z-index: 0;
+  }
+  .card.now .badge, .card.now .entries { position: relative; z-index: 1; }
+  .card.now .badge {
+    background: rgba(20, 48, 74, 0.08); color: var(--text);
+  }
+  .card.now .badge .dot { background: var(--now-green); }
+  .card.now .entry-time { color: #3d6b86; }
+  .card.now .entry-team { color: var(--text); }
+  .card.now .entry-locker {
+    background: rgba(20, 48, 74, 0.08); border: 1px solid rgba(20, 48, 74, 0.15); color: var(--text);
+  }
+  .card.now .entry-locker .label { color: #3d6b86; }
+  .card.now .card-empty { color: #4a6a86; }
+
   .card.next { background: linear-gradient(135deg, var(--next-blue), var(--deep-blue)); }
 
   .badge {
@@ -107,35 +151,72 @@
   .status-msg.error { color: var(--warn); font-weight: 600; }
 
   footer { text-align: center; margin-top: 0.8vw; font-size: 0.7vw; color: #90a9bd; }
+
+  .kiosk-bar {
+    flex-shrink: 0;
+    background: linear-gradient(90deg, var(--deep-blue), var(--next-blue));
+    padding: 0.9vw 2.8vw;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1vw;
+  }
+  .kiosk-status {
+    font-size: 1.3vw; font-weight: 800; letter-spacing: 0.02em;
+  }
+  .kiosk-status.open { color: #4ee6a0; }
+  .kiosk-status.closed { color: #ffffff; }
+  .kiosk-meta {
+    font-size: 0.75vw; color: rgba(255,255,255,0.65); text-align: right;
+  }
 </style>
 </head>
 <body>
 <div class="stage">
-  <header>
-    <span class="icon">🏒</span>
-    <h1>Istider i Lørenhallen</h1>
-    <span class="date" id="todayLabel">–</span>
-  </header>
-
-  <div class="main">
-    <div class="cards">
-      <div class="card now">
-        <div class="badge"><span class="dot"></span>På isen akkurat nå</div>
-        <div class="entries" id="nowEntries"><div class="card-empty">Laster …</div></div>
+  <div class="content">
+    <header>
+      <div class="header-side left">
+        <div class="clock-block">
+          <div class="clock-time" id="clockTime">–</div>
+          <div class="clock-date" id="clockDate">–</div>
+        </div>
       </div>
 
-      <div class="card next">
-        <div class="badge">Neste ut</div>
-        <div class="entries" id="nextEntries"><div class="card-empty">Laster …</div></div>
+      <div class="header-center">
+        <span class="icon">🏒</span>
+        <h1>Istider i Lørenhallen</h1>
+      </div>
+
+      <div class="header-side right">
+        <div class="logo-block">
+          <img src="https://cdn-bloc.no/background/200000195/7987/2026/4/23/hl_logo.png" alt="Lørenhallen logo">
+        </div>
+      </div>
+    </header>
+
+    <div class="main">
+      <div class="cards">
+        <div class="card now">
+          <div class="now-fill" id="nowFill"></div>
+          <div class="badge"><span class="dot"></span>På isen akkurat nå</div>
+          <div class="entries" id="nowEntries"><div class="card-empty">Laster …</div></div>
+        </div>
+
+        <div class="card next">
+          <div class="badge">Neste ut</div>
+          <div class="entries" id="nextEntries"><div class="card-empty">Laster …</div></div>
+        </div>
+      </div>
+
+      <div class="list-panel">
+        <div class="list-title">Hele dagens is-tider</div>
+        <div class="schedule" id="scheduleList"><div class="card-empty" style="color:#4a6a86;">Laster …</div></div>
+        <div class="status-msg" id="statusMsg"></div>
       </div>
     </div>
+  </div>
 
-    <div class="list-panel">
-      <div class="list-title">Hele dagens is-tider</div>
-      <div class="schedule" id="scheduleList"><div class="card-empty" style="color:#4a6a86;">Laster …</div></div>
-      <div class="status-msg" id="statusMsg"></div>
-      <footer>Kilde: Istider Lørenhallen (Google Regneark) · tinyurl.com/istider · oppdateres automatisk</footer>
-    </div>
+  <div class="kiosk-bar">
+    <div class="kiosk-status" id="kioskStatus">–</div>
+    <div class="kiosk-meta">Kilde: Istider Lørenhallen (Google Regneark) · tinyurl.com/istider</div>
   </div>
 </div>
 
@@ -147,9 +228,13 @@
 // fra sitt eget opphav (samme domene = ingen CORS-problem).
 const CSV_URL = "data/schedule.csv";
 const REFRESH_DATA_MS = 5 * 60 * 1000;    // sjekk om filen i repoet er oppdatert hvert 5. min
-const REFRESH_CLOCK_MS = 30 * 1000;       // oppdater klokke/nå-neste hvert 30. sek
+const REFRESH_CLOCK_MS = 1000;            // klokken (med sekunder) oppdateres hvert sekund
 
 const NB_WEEKDAYS = ["søn","man","tir","ons","tor","fre","lør"];
+
+/* Kioskens åpningstider. Endre disse to linjene ved behov. */
+const KIOSK_HOURS_WEEKDAY = { open: "17:00", close: "21:00" }; // man–fre
+const KIOSK_HOURS_WEEKEND = { open: "10:00", close: "18:00" }; // lør–søn
 
 /* ============ CSV-PARSER (tåler komma inni anførselstegn) ============ */
 function parseCSV(text) {
@@ -202,6 +287,30 @@ function matchesDate(cell, date) {
 
 function isWeekHeader(cell) {
   return !!cell && /^uke\s+\d+/i.test(cell.trim());
+}
+
+/* ============ Kiosk-åpningstider ============ */
+function kioskHoursFor(date) {
+  const day = date.getDay(); // 0 = søndag, 6 = lørdag
+  return (day === 0 || day === 6) ? KIOSK_HOURS_WEEKEND : KIOSK_HOURS_WEEKDAY;
+}
+
+function kioskStatus(now) {
+  const hours = kioskHoursFor(now);
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const openMin = toMinutes(hours.open);
+  const closeMin = toMinutes(hours.close);
+
+  if (nowMin >= openMin && nowMin < closeMin) {
+    return { isOpen: true };
+  }
+  if (nowMin < openMin) {
+    return { isOpen: false, nextOpen: hours.open };
+  }
+  // etter stengetid i dag -> finn neste dags åpningstid
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return { isOpen: false, nextOpen: kioskHoursFor(tomorrow).open };
 }
 
 /* ============ Hent og tolk data for dagens dato ============ */
@@ -294,11 +403,38 @@ function tick() {
   const now = new Date();
   const nowMin = now.getHours() * 60 + now.getMinutes();
 
-  document.getElementById("todayLabel").textContent =
+  // Klokke og dato øverst til venstre
+  document.getElementById("clockTime").textContent =
+    pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
+  document.getElementById("clockDate").textContent =
     now.toLocaleDateString("nb-NO", { weekday: "long", day: "numeric", month: "long" });
+
+  // Kiosk-status nederst
+  const status = kioskStatus(now);
+  const statusEl2 = document.getElementById("kioskStatus");
+  if (status.isOpen) {
+    statusEl2.textContent = "Kiosken er åpen";
+    statusEl2.className = "kiosk-status open";
+  } else {
+    statusEl2.textContent = "Kiosken åpner klokken " + status.nextOpen;
+    statusEl2.className = "kiosk-status closed";
+  }
 
   // Alle økter som pågår nå (kan være flere samtidig, f.eks. delt is)
   const current = cachedSlots.filter(s => nowMin >= s.start && nowMin < s.end);
+
+  // Progresjonsfylling: fra tidligste start til seneste slutt blant pågående økter
+  const fillEl = document.getElementById("nowFill");
+  if (current.length) {
+    const blockStart = Math.min(...current.map(s => s.start));
+    const blockEnd = Math.max(...current.map(s => s.end));
+    const ratio = blockEnd > blockStart
+      ? Math.max(0, Math.min(1, (nowMin - blockStart) / (blockEnd - blockStart)))
+      : 1;
+    fillEl.style.width = (ratio * 100).toFixed(1) + "%";
+  } else {
+    fillEl.style.width = "0%";
+  }
 
   // Neste starttidspunkt, og ALLE lag som starter da (kan være flere)
   const upcomingStarts = cachedSlots.map(s => s.start).filter(t => t > nowMin);
