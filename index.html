@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Istider Lørenhallen – i dag</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --ice-blue: #eaf6ff;
@@ -21,13 +24,51 @@
     color: var(--text);
   }
 
-  .stage {
+  .stage-wrapper {
     width: 100vw; height: 56.25vw;
     max-height: 100vh; max-width: 177.78vh;
-    background: linear-gradient(160deg, #dff2ff 0%, #f7fbff 45%, #ffffff 100%);
-    display: flex; flex-direction: column;
+    position: relative;
     overflow: hidden;
+    box-shadow: 0 1vw 3vw rgba(13, 59, 102, 0.15);
   }
+
+  .slide {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    background: linear-gradient(160deg, #dff2ff 0%, #f7fbff 45%, #ffffff 100%);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.7s ease;
+  }
+  .slide.active { opacity: 1; pointer-events: auto; }
+
+  /* ---- Velkomst- og klokke-slide ---- */
+  .intro-center {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+    padding: 2vw;
+  }
+  .intro-heading {
+    font-family: 'Public Sans', 'Segoe UI', sans-serif;
+    font-weight: 800; font-size: 5.6vw; color: var(--deep-blue);
+    line-height: 1.2; letter-spacing: -0.01em;
+  }
+  .intro-clock {
+    font-family: 'Public Sans', 'Segoe UI', sans-serif;
+    font-weight: 800; font-size: 7vw; color: var(--deep-blue);
+    font-variant-numeric: tabular-nums; letter-spacing: 0.02em;
+  }
+  .intro-clock-date {
+    font-family: 'Public Sans', 'Segoe UI', sans-serif;
+    font-weight: 600; font-size: 1.6vw; color: #4a6a86;
+    text-transform: capitalize; margin-top: 0.6vw;
+  }
+  .intro-logos {
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 4vw 3vw; opacity: 0.8;
+  }
+  .intro-logos img.logo-hasle { max-height: 6.4vw; max-width: 30vw; object-fit: contain; }
+  .intro-logos img.logo-oslo { max-height: 12.8vw; max-width: 60vw; object-fit: contain; }
 
   .content { flex: 1; display: flex; flex-direction: column; padding: 1.8vw 2.8vw 0.6vw; min-height: 0; }
 
@@ -76,34 +117,20 @@
   .card.now { background: linear-gradient(135deg, var(--now-green), #12855a); }
   .card.next { background: linear-gradient(135deg, var(--next-blue), var(--deep-blue)); }
 
-  .progress-track {
-    position: relative; z-index: 1;
-    margin-top: 1vw;
-    height: 0.9vw;
-    background: rgba(255,255,255,0.35);
-    border-radius: 999px;
-    overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%; width: 0%;
-    background: #0a4d30;
-    border-radius: 999px;
-    transition: width 1s linear;
-  }
-  .progress-label {
-    position: relative; z-index: 1;
-    margin-top: 0.4vw;
-    font-size: 0.85vw;
-    color: rgba(255,255,255,0.85);
-    font-weight: 600;
-  }
-
   .badge {
+    position: relative; overflow: hidden;
     display: inline-flex; align-items: center; gap: 0.5vw; align-self: flex-start;
     background: rgba(255,255,255,0.22); color: white; font-size: 1vw; font-weight: 700;
     letter-spacing: 0.06em; text-transform: uppercase; padding: 0.4vw 1vw;
     border-radius: 999px; margin-bottom: 0.9vw;
   }
+  .badge-fill {
+    position: absolute; inset: 0; width: 0%;
+    background: #0a4d30;
+    transition: width 1s linear;
+    z-index: 0;
+  }
+  .badge .badge-label { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 0.5vw; }
   .card.now .badge .dot {
     width: 0.6vw; height: 0.6vw; background: white; border-radius: 50%;
     animation: pulse 1.6s infinite ease-in-out;
@@ -155,21 +182,48 @@
     flex-shrink: 0;
     background: linear-gradient(90deg, var(--deep-blue), var(--next-blue));
     padding: 0.9vw 2.8vw;
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 1vw;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 0.2vw;
+    transition: background 0.5s ease;
   }
+  .kiosk-bar.open { background: linear-gradient(90deg, #0f6b3f, #1fae6c); }
+  .kiosk-bar.closed { background: linear-gradient(90deg, #7a1f1f, #c0392b); }
   .kiosk-status {
-    font-size: 1.3vw; font-weight: 800; letter-spacing: 0.02em;
+    font-size: 1.3vw; font-weight: 800; letter-spacing: 0.02em; color: white; text-align: center;
   }
-  .kiosk-status.open { color: #4ee6a0; }
-  .kiosk-status.closed { color: #ffffff; }
   .kiosk-meta {
-    font-size: 0.75vw; color: rgba(255,255,255,0.65); text-align: right;
+    font-size: 0.75vw; color: rgba(255,255,255,0.7); text-align: center;
   }
 </style>
 </head>
 <body>
-<div class="stage">
+<div class="stage-wrapper" id="stageWrapper">
+
+  <!-- SLIDE 1: Velkomst -->
+  <div class="slide slide-welcome active" id="slideWelcome">
+    <div class="intro-center">
+      <div class="intro-heading">Velkommen til<br>Løren ishall</div>
+    </div>
+    <div class="intro-logos">
+      <img class="logo-hasle" src="https://cdn-bloc.no/background/200000195/7987/2026/4/23/hl_logo.png" alt="Hasle/Løren logo">
+      <img class="logo-oslo" src="https://oslobyleksikon.no/images/thumb/2/28/Oslo-logo-sort-RGB.jpg/800px-Oslo-logo-sort-RGB.jpg?20191008125845" alt="Oslo kommune logo">
+    </div>
+  </div>
+
+  <!-- SLIDE 2: Klokke -->
+  <div class="slide slide-clock" id="slideClock">
+    <div class="intro-center">
+      <div class="intro-clock" id="introClockTime">–</div>
+      <div class="intro-clock-date" id="introClockDate">–</div>
+    </div>
+    <div class="intro-logos">
+      <img class="logo-hasle" src="https://cdn-bloc.no/background/200000195/7987/2026/4/23/hl_logo.png" alt="Hasle/Løren logo">
+      <img class="logo-oslo" src="https://oslobyleksikon.no/images/thumb/2/28/Oslo-logo-sort-RGB.jpg/800px-Oslo-logo-sort-RGB.jpg?20191008125845" alt="Oslo kommune logo">
+    </div>
+  </div>
+
+  <!-- SLIDE 3: Istider (hovedinnhold) -->
+  <div class="slide slide-schedule" id="slideSchedule">
   <div class="content">
     <header>
       <div class="header-side left">
@@ -194,17 +248,17 @@
     <div class="main">
       <div class="cards">
         <div class="card now">
-          <div class="badge"><span class="dot"></span>På isen akkurat nå</div>
-          <div class="entries" id="nowEntries"><div class="card-empty">Laster …</div></div>
-          <div class="progress-track" id="progressTrack" style="display:none;">
-            <div class="progress-fill" id="progressFill"></div>
+          <div class="badge">
+            <div class="badge-fill" id="badgeFill"></div>
+            <span class="badge-label"><span class="dot"></span>På isen akkurat nå</span>
           </div>
-          <div class="progress-label" id="progressLabel"></div>
+          <div class="entries" id="nowEntries"><div class="card-empty">Laster …</div></div>
         </div>
 
         <div class="card next">
           <div class="badge">Neste ut</div>
           <div class="entries" id="nextEntries"><div class="card-empty">Laster …</div></div>
+          <div class="progress-label" id="nextCountdown"></div>
         </div>
       </div>
 
@@ -216,10 +270,12 @@
     </div>
   </div>
 
-  <div class="kiosk-bar">
+  <div class="kiosk-bar" id="kioskBar">
     <div class="kiosk-status" id="kioskStatus">–</div>
     <div class="kiosk-meta">Kilde: Istider Lørenhallen (Google Regneark) · tinyurl.com/istider</div>
   </div>
+  </div>
+
 </div>
 
 <script>
@@ -411,45 +467,52 @@ function tick() {
   document.getElementById("clockDate").textContent =
     now.toLocaleDateString("nb-NO", { weekday: "long", day: "numeric", month: "long" });
 
+  // Storklokke-sliden (samme klokkeslett, egen visning)
+  document.getElementById("introClockTime").textContent =
+    pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
+  document.getElementById("introClockDate").textContent =
+    now.toLocaleDateString("nb-NO", { weekday: "long", day: "numeric", month: "long" });
+
   // Kiosk-status nederst
   const status = kioskStatus(now);
   const statusEl2 = document.getElementById("kioskStatus");
+  const kioskBarEl = document.getElementById("kioskBar");
   if (status.isOpen) {
-    statusEl2.textContent = "Kiosken er åpen";
-    statusEl2.className = "kiosk-status open";
+    statusEl2.textContent = "Kiosken er åpen – velkommen opp";
+    kioskBarEl.className = "kiosk-bar open";
   } else {
     statusEl2.textContent = "Kiosken åpner klokken " + status.nextOpen;
-    statusEl2.className = "kiosk-status closed";
+    kioskBarEl.className = "kiosk-bar closed";
   }
 
   // Alle økter som pågår nå (kan være flere samtidig, f.eks. delt is)
   const current = cachedSlots.filter(s => nowMin >= s.start && nowMin < s.end);
 
-  // Progresjonsindikator: fra tidligste start til seneste slutt blant pågående økter
-  const track = document.getElementById("progressTrack");
-  const fillBar = document.getElementById("progressFill");
-  const progLabel = document.getElementById("progressLabel");
+  // Fyller "PÅ ISEN AKKURAT NÅ"-merket gradvis, fra tidligste start til seneste slutt
+  const badgeFill = document.getElementById("badgeFill");
   if (current.length) {
     const blockStart = Math.min(...current.map(s => s.start));
     const blockEnd = Math.max(...current.map(s => s.end));
     const ratio = blockEnd > blockStart
       ? Math.max(0, Math.min(1, (nowMin - blockStart) / (blockEnd - blockStart)))
       : 1;
-    const remaining = Math.max(0, blockEnd - nowMin);
-    track.style.display = "block";
-    fillBar.style.width = (ratio * 100).toFixed(0) + "%";
-    progLabel.textContent = remaining > 0
-      ? Math.round(remaining) + " min igjen av økten"
-      : "Økten er ferdig";
+    badgeFill.style.width = (ratio * 100).toFixed(1) + "%";
   } else {
-    track.style.display = "none";
-    progLabel.textContent = "";
+    badgeFill.style.width = "0%";
   }
 
   // Neste starttidspunkt, og ALLE lag som starter da (kan være flere)
   const upcomingStarts = cachedSlots.map(s => s.start).filter(t => t > nowMin);
   const nextStart = upcomingStarts.length ? Math.min(...upcomingStarts) : null;
   const next = nextStart === null ? [] : cachedSlots.filter(s => s.start === nextStart);
+
+  const nextCountdownEl = document.getElementById("nextCountdown");
+  if (next.length) {
+    const minsLeft = Math.max(0, nextStart - nowMin);
+    nextCountdownEl.textContent = "Økten starter om " + minsLeft + " min";
+  } else {
+    nextCountdownEl.textContent = "";
+  }
 
   renderEntries(document.getElementById("nowEntries"), current, "Ingen på isen akkurat nå");
   renderEntries(document.getElementById("nextEntries"), next, "Ingen flere økter i dag");
@@ -502,6 +565,37 @@ async function refreshData() {
 refreshData();
 setInterval(refreshData, REFRESH_DATA_MS);
 setInterval(tick, REFRESH_CLOCK_MS);
+
+/* ============ SLIDE-KARUSELL ============ */
+// Rekkefølge og varighet (millisekunder) for de tre visningene.
+// Bytt tallene her hvis du vil justere hvor lenge hver skal vises.
+const SLIDES = [
+  { id: "slideWelcome", duration: 3000 },
+  { id: "slideClock",   duration: 2000 },
+  { id: "slideSchedule", duration: 10000 },
+];
+let slideIndex = 0;
+let slideTimer = null;
+
+function showSlide(i) {
+  SLIDES.forEach((s, idx) => {
+    document.getElementById(s.id).classList.toggle("active", idx === i);
+  });
+}
+
+function goToNextSlide() {
+  slideIndex = (slideIndex + 1) % SLIDES.length;
+  showSlide(slideIndex);
+  scheduleNextSlide();
+}
+
+function scheduleNextSlide() {
+  clearTimeout(slideTimer);
+  slideTimer = setTimeout(goToNextSlide, SLIDES[slideIndex].duration);
+}
+
+showSlide(slideIndex);
+scheduleNextSlide();
 </script>
 </body>
 </html>
