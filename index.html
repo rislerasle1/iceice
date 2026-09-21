@@ -71,11 +71,50 @@
   .intro-logos img.logo-oslo { max-height: 12.8vw; max-width: 60vw; object-fit: contain; }
 
   /* ---- Infoside (kolonne G i arket) ---- */
-  .info-icon { font-size: 4vw; margin-bottom: 1vw; }
+  @keyframes infoGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  @keyframes infoGlow {
+    0%, 100% { box-shadow: 0 0 2vw rgba(255,209,102,0.25), 0 1vw 2.5vw rgba(0,0,0,0.25); }
+    50% { box-shadow: 0 0 3.5vw rgba(255,209,102,0.5), 0 1vw 2.5vw rgba(0,0,0,0.25); }
+  }
+  @keyframes infoIconPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+  }
+  #slideInfo {
+    background-image: linear-gradient(135deg, #0d1b3d, #1a2a6c, #3a1c71, #0d3b66);
+    background-size: 300% 300%;
+    animation: infoGradient 14s ease infinite;
+  }
+  .info-badge {
+    display: inline-flex; align-items: center; gap: 0.5vw;
+    background: rgba(255,255,255,0.12); border: 1px solid rgba(255,209,102,0.5);
+    color: #ffd166; font-weight: 800; font-size: 1vw; letter-spacing: 0.1em;
+    text-transform: uppercase; padding: 0.5vw 1.5vw; border-radius: 999px;
+    margin-bottom: 1.8vw;
+  }
+  .info-card {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 1.6vw;
+    padding: 3vw 4vw;
+    max-width: 78%;
+    animation: infoGlow 3.2s ease-in-out infinite;
+    backdrop-filter: blur(6px);
+  }
+  .info-icon {
+    font-size: 4.6vw; margin-bottom: 1.2vw;
+    animation: infoIconPulse 1.6s ease-in-out infinite;
+    filter: drop-shadow(0 0 1vw rgba(255,209,102,0.55));
+  }
   .info-text {
     font-family: 'Public Sans', 'Segoe UI', sans-serif;
-    font-weight: 700; font-size: 2.4vw; color: var(--deep-blue);
-    line-height: 1.5; max-width: 80%; white-space: pre-line;
+    font-weight: 700; font-size: 2.4vw; color: #ffffff;
+    line-height: 1.5; white-space: pre-line;
+    text-shadow: 0 0.2vw 0.5vw rgba(0,0,0,0.3);
   }
 
   /* ---- Lekne barne-slides (torsdager 17-18) ---- */
@@ -348,11 +387,14 @@
   </div>
   </div>
 
-  <!-- SLIDE: Info fra regnearket (kolonne G) - vises kun når det er fylt ut, 5 sek etter istider -->
+  <!-- SLIDE: Info fra regnearket (kolonne G) - vises kun når det er fylt ut, 7 sek etter istider -->
   <div class="slide" id="slideInfo">
     <div class="intro-center">
-      <div class="info-icon">📢</div>
-      <div class="info-text" id="infoText"></div>
+      <div class="info-card">
+        <div class="info-badge">📢 Informasjon</div>
+        <div class="info-icon">📣</div>
+        <div class="info-text" id="infoText"></div>
+      </div>
     </div>
   </div>
 
@@ -676,7 +718,7 @@ function isThursdayHappyHour(date) {
   return date.getDay() === 4 && nowMin >= 17 * 60 && nowMin < 18 * 60; // 4 = torsdag
 }
 
-// Setter inn "slideInfo" (5 sek) rett etter "slideSchedule", men kun når
+// Setter inn "slideInfo" (7 sek) rett etter "slideSchedule", men kun når
 // kolonne G faktisk inneholder noe for dagens dato.
 function currentSlideList() {
   const base = isThursdayHappyHour(new Date()) ? THURSDAY_HAPPY_SLIDES : NORMAL_SLIDES;
@@ -686,7 +728,7 @@ function currentSlideList() {
   base.forEach(item => {
     withInfo.push(item);
     if (item.id === "slideSchedule") {
-      withInfo.push({ id: "slideInfo", duration: 5000 });
+      withInfo.push({ id: "slideInfo", duration: 7000 });
     }
   });
   return withInfo;
