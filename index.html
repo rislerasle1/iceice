@@ -70,6 +70,14 @@
   .intro-logos img.logo-hasle { max-height: 6.4vw; max-width: 30vw; object-fit: contain; }
   .intro-logos img.logo-oslo { max-height: 12.8vw; max-width: 60vw; object-fit: contain; }
 
+  /* ---- Infoside (kolonne G i arket) ---- */
+  .info-icon { font-size: 4vw; margin-bottom: 1vw; }
+  .info-text {
+    font-family: 'Public Sans', 'Segoe UI', sans-serif;
+    font-weight: 700; font-size: 2.4vw; color: var(--deep-blue);
+    line-height: 1.5; max-width: 80%; white-space: pre-line;
+  }
+
   /* ---- Lekne barne-slides (torsdager 17-18) ---- */
   @keyframes funGradient {
     0% { background-position: 0% 50%; }
@@ -340,6 +348,14 @@
   </div>
   </div>
 
+  <!-- SLIDE: Info fra regnearket (kolonne G) - vises kun når det er fylt ut, 5 sek etter istider -->
+  <div class="slide" id="slideInfo">
+    <div class="intro-center">
+      <div class="info-icon">📢</div>
+      <div class="info-text" id="infoText"></div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -458,6 +474,7 @@ async function fetchTodaysSchedule() {
 
   let inTodaysBlock = false;
   const slots = [];
+  const infoNotes = [];
 
   for (const row of rows) {
     const colA = (row[0] || "").trim();
@@ -465,6 +482,7 @@ async function fetchTodaysSchedule() {
     const til = (row[2] || "").trim();
     const lag = (row[3] || "").trim();
     const garderobe = (row[5] || "").trim();
+    const info = (row[6] || "").trim();
 
     if (isWeekHeader(colA)) { inTodaysBlock = false; continue; }
 
@@ -477,6 +495,9 @@ async function fetchTodaysSchedule() {
     }
 
     if (!inTodaysBlock) continue;
+
+    // plukk opp evt. informasjonstekst i kolonne G – kun den FØRSTE for dagen
+    if (info && infoNotes.length === 0) infoNotes.push(info);
 
     // hopp over tomme/ugyldige rader (f.eks. blanke skillelinjer)
     if (!fra && !lag) continue;
@@ -497,11 +518,12 @@ async function fetchTodaysSchedule() {
 
   // sorter alltid på starttid, uansett hvor mange økter det er
   slots.sort((a, b) => a.start - b.start);
-  return { slots, wantedLabel };
+  return { slots, wantedLabel, infoNotes };
 }
 
 /* ============ Rendering ============ */
 let cachedSlots = [];
+let cachedInfoNotes = [];
 let lastError = null;
 
 function renderEntries(container, list, emptyMsg) {
@@ -616,13 +638,15 @@ function tick() {
 
 async function refreshData() {
   try {
-    const { slots } = await fetchTodaysSchedule();
+    const { slots, infoNotes } = await fetchTodaysSchedule();
     cachedSlots = slots;
+    cachedInfoNotes = infoNotes;
     lastError = null;
   } catch (e) {
     lastError = e.message || String(e);
     // behold forrige gyldige data i tilfelle midlertidig nettverksfeil
   }
+  document.getElementById("infoText").textContent = cachedInfoNotes.join("\n\n");
   tick();
 }
 
@@ -631,7 +655,7 @@ setInterval(refreshData, REFRESH_DATA_MS);
 setInterval(tick, REFRESH_CLOCK_MS);
 
 /* ============ SLIDE-KARUSELL ============ */
-const ALL_SLIDE_IDS = ["slideWelcome", "slideClock", "slideSchedule", "slideSHS", "slideReminder"];
+const ALL_SLIDE_IDS = ["slideWelcome", "slideClock", "slideSchedule", "slideSHS", "slideReminder", "slideInfo"];
 
 // Vanlig rotasjon
 const NORMAL_SLIDES = [
@@ -652,8 +676,20 @@ function isThursdayHappyHour(date) {
   return date.getDay() === 4 && nowMin >= 17 * 60 && nowMin < 18 * 60; // 4 = torsdag
 }
 
+// Setter inn "slideInfo" (5 sek) rett etter "slideSchedule", men kun når
+// kolonne G faktisk inneholder noe for dagens dato.
 function currentSlideList() {
-  return isThursdayHappyHour(new Date()) ? THURSDAY_HAPPY_SLIDES : NORMAL_SLIDES;
+  const base = isThursdayHappyHour(new Date()) ? THURSDAY_HAPPY_SLIDES : NORMAL_SLIDES;
+  if (!cachedInfoNotes.length) return base;
+
+  const withInfo = [];
+  base.forEach(item => {
+    withInfo.push(item);
+    if (item.id === "slideSchedule") {
+      withInfo.push({ id: "slideInfo", duration: 5000 });
+    }
+  });
+  return withInfo;
 }
 
 let slideIndex = 0;
