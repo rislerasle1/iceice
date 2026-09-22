@@ -50,7 +50,10 @@
   }
   .slide.active { opacity: 1; pointer-events: auto; }
 
-  /* ---- Velkomst- og klokke-slide ---- */
+  /* ---- Velkomst- og klokke-slide ----
+     Helt hvit bakgrunn, slik at den hvite bakgrunnen i Oslo-logoen
+     ikke lager en synlig rute mot isfargen. */
+  .slide-welcome, .slide-clock { background: #ffffff; }
   .slide-welcome::before, .slide-clock::before {
     content: ""; position: absolute; left: 0; right: 0; top: 0;
     height: 0.8vw; background: var(--deep);
@@ -83,39 +86,6 @@
   }
   .intro-logos img.logo-hasle { max-height: 6.4vw; max-width: 30vw; object-fit: contain; }
   .intro-logos img.logo-oslo { max-height: 12.8vw; max-width: 60vw; object-fit: contain; }
-
-  /* ---- Infoside (kolonne G i arket) ---- */
-  @keyframes infoIconPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-  }
-  #slideInfo { background: var(--deep); }
-  #slideInfo::before {
-    content: ""; position: absolute; left: 0; right: 0; top: 0;
-    height: 0.35vw; background: var(--red);
-  }
-  .info-card {
-    background: rgba(255,255,255,0.07);
-    border-left: 0.4vw solid var(--gold);
-    padding: 2.6vw 3.4vw;
-    max-width: 80%;
-    text-align: left;
-  }
-  .info-badge {
-    display: inline-flex; align-items: center; gap: 0.5vw;
-    background: var(--gold); color: #3d2f00;
-    font-weight: 900; font-size: 0.8vw; letter-spacing: 0.2em;
-    text-transform: uppercase; padding: 0.35vw 1vw;
-    margin-bottom: 1.6vw;
-  }
-  .info-icon {
-    font-size: 3.6vw; margin-bottom: 1vw;
-    animation: infoIconPulse 1.8s ease-in-out infinite;
-  }
-  .info-text {
-    font-weight: 800; font-size: 2.4vw; color: #ffffff;
-    line-height: 1.45; white-space: pre-line;
-  }
 
   /* ---- Lekne barne-slides (torsdager 17-18) ---- */
   @keyframes funGradient {
@@ -539,17 +509,6 @@
     </div>
   </div>
 
-  <!-- SLIDE: Info fra regnearket (kolonne G) - vises kun når det er fylt ut, 7 sek etter istider -->
-  <div class="slide" id="slideInfo">
-    <div class="intro-center">
-      <div class="info-card">
-        <div class="info-badge">📢 Informasjon</div>
-        <div class="info-icon">📣</div>
-        <div class="info-text" id="infoText"></div>
-      </div>
-    </div>
-  </div>
-
 </div>
 
 <script>
@@ -840,18 +799,16 @@ async function refreshData() {
     lastError = e.message || String(e);
     // behold forrige gyldige data i tilfelle midlertidig nettverksfeil
   }
-  // Info-siden (egen slide) og merknadsboksen på istid-siden viser
-  // samme tekst: kolonne G for dagens dato.
-  const merknad = cachedInfoNotes.join("\n\n");
-  document.getElementById("infoText").textContent = merknad;
-  visMerknad(merknad);
+  // Merknadsboksen på istid-siden viser kolonne G for dagens dato.
+  // (Den egne info-siden er fjernet - merknaden står nå sammen med istidene.)
+  visMerknad(cachedInfoNotes.join("\n\n"));
 
   tick();
 }
 
 /* ============ MERKNADSBOKS ============
-   Boksen på istid-siden er et forvarsel om info-siden som kommer rett
-   etterpå i rotasjonen. Tom kolonne G = ingen merknad; da skjules boksen
+   Boksen på istid-siden er eneste stedet merknaden vises.
+   Tom kolonne G = ingen merknad; da skjules boksen
    og "Neste ut" får plassen. Sett flagget under til false hvis boksen
    heller skal stå der hele tiden med en nøytral tekst. */
 const SKJUL_MERKNAD_NAAR_TOM = true;
@@ -878,7 +835,7 @@ setInterval(refreshData, REFRESH_DATA_MS);
 setInterval(tick, REFRESH_CLOCK_MS);
 
 /* ============ SLIDE-KARUSELL ============ */
-const ALL_SLIDE_IDS = ["slideWelcome", "slideClock", "slideSchedule", "slideSHS", "slideReminder", "slideInfo"];
+const ALL_SLIDE_IDS = ["slideWelcome", "slideClock", "slideSchedule", "slideSHS", "slideReminder"];
 
 // Vanlig rotasjon
 const NORMAL_SLIDES = [
@@ -899,20 +856,9 @@ function isThursdayHappyHour(date) {
   return date.getDay() === 4 && nowMin >= 17 * 60 && nowMin < 18 * 60; // 4 = torsdag
 }
 
-// Setter inn "slideInfo" (7 sek) rett etter "slideSchedule", men kun når
-// kolonne G faktisk inneholder noe for dagens dato.
+// Velger rotasjon. Torsdager 17-18 kjører SHS-variantene, ellers vanlig.
 function currentSlideList() {
-  const base = isThursdayHappyHour(new Date()) ? THURSDAY_HAPPY_SLIDES : NORMAL_SLIDES;
-  if (!cachedInfoNotes.length) return base;
-
-  const withInfo = [];
-  base.forEach(item => {
-    withInfo.push(item);
-    if (item.id === "slideSchedule") {
-      withInfo.push({ id: "slideInfo", duration: 7000 });
-    }
-  });
-  return withInfo;
+  return isThursdayHappyHour(new Date()) ? THURSDAY_HAPPY_SLIDES : NORMAL_SLIDES;
 }
 
 let slideIndex = 0;
