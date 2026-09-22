@@ -53,8 +53,8 @@
   /* ---- Velkomst- og klokke-slide ----
      Helt hvit bakgrunn, slik at den hvite bakgrunnen i Oslo-logoen
      ikke lager en synlig rute mot isfargen. */
-  .slide-welcome, .slide-clock { background: #ffffff; }
-  .slide-welcome::before, .slide-clock::before {
+  .slide-welcome { background: #ffffff; }
+  .slide-welcome::before {
     content: ""; position: absolute; left: 0; right: 0; top: 0;
     height: 0.8vw; background: var(--deep);
     border-bottom: 0.25vw solid var(--red);
@@ -71,14 +71,22 @@
   .intro-rule {
     width: 12vw; height: 0.35vw; background: var(--red); margin-top: 2.2vw;
   }
-  .intro-clock {
-    font-weight: 900; font-size: 7vw; color: var(--deep);
-    font-variant-numeric: tabular-nums; letter-spacing: -0.02em; line-height: 1;
+  /* Hjørneklokke: står øverst til venstre på sidene som ikke har
+     den mørkeblå topplinja (istid-siden har sin egen klokke der). */
+  .corner-clock { position: absolute; top: 1.7vw; left: 2vw; z-index: 5; line-height: 1.1; }
+  .corner-clock .t {
+    font-size: 1.9vw; font-weight: 900; color: var(--deep);
+    font-variant-numeric: tabular-nums; letter-spacing: -0.01em;
   }
-  .intro-clock-date {
-    font-weight: 700; font-size: 1.5vw; color: var(--muted);
-    text-transform: capitalize; letter-spacing: 0.06em; margin-top: 0.8vw;
+  .corner-clock .d {
+    font-size: 0.8vw; font-weight: 700; color: var(--muted);
+    text-transform: capitalize; margin-top: 0.2vw;
   }
+  #slideSHS .corner-clock .t, #slideReminder .corner-clock .t {
+    color: #ffffff; text-shadow: 0 0.2vw 0.4vw rgba(0,0,0,0.25);
+  }
+  #slideSHS .corner-clock .d, #slideReminder .corner-clock .d { color: rgba(255,255,255,0.9); }
+
   .intro-logos {
     flex-shrink: 0;
     display: flex; align-items: center; justify-content: space-between;
@@ -361,15 +369,6 @@
     display: block; margin-top: 0.3vw;
     font-size: 1.05vw; font-weight: 900; color: var(--deep);
   }
-  .intro-qr {
-    display: flex; flex-direction: column; align-items: center; gap: 0.8vw;
-    margin-top: 2.6vw;
-  }
-  .intro-qr .qr { width: 9vw; height: 9vw; padding: 0.4vw; }
-  .intro-qr .qr-tekst {
-    font-size: 1vw; font-weight: 800; letter-spacing: 0.12em;
-    text-transform: uppercase; color: var(--muted);
-  }
 </style>
 </head>
 <body>
@@ -388,25 +387,13 @@
 
   <!-- SLIDE 1: Velkomst -->
   <div class="slide slide-welcome active" id="slideWelcome">
+    <div class="corner-clock">
+      <div class="t" data-klokke>–</div>
+      <div class="d" data-dato>–</div>
+    </div>
     <div class="intro-center">
       <div class="intro-heading">Velkommen til<br>Løren ishall</div>
       <div class="intro-rule"></div>
-      <div class="intro-qr">
-        <svg class="qr" role="img" aria-label="QR-kode til tinyurl.com/istider"><use href="#qrIstider"></use></svg>
-        <div class="qr-tekst">Skann for hele ukens istider</div>
-      </div>
-    </div>
-    <div class="intro-logos">
-      <img class="logo-hasle" src="https://cdn-bloc.no/background/200000195/7987/2026/4/23/hl_logo.png" alt="Hasle/Løren logo">
-      <img class="logo-oslo" src="https://oslobyleksikon.no/images/thumb/2/28/Oslo-logo-sort-RGB.jpg/800px-Oslo-logo-sort-RGB.jpg?20191008125845" alt="Oslo kommune logo">
-    </div>
-  </div>
-
-  <!-- SLIDE 2: Klokke -->
-  <div class="slide slide-clock" id="slideClock">
-    <div class="intro-center">
-      <div class="intro-clock" id="introClockTime">–</div>
-      <div class="intro-clock-date" id="introClockDate">–</div>
     </div>
     <div class="intro-logos">
       <img class="logo-hasle" src="https://cdn-bloc.no/background/200000195/7987/2026/4/23/hl_logo.png" alt="Hasle/Løren logo">
@@ -416,6 +403,10 @@
 
   <!-- SLIDE (torsdager 17-18): SHS-velkomst -->
   <div class="slide" id="slideSHS">
+    <div class="corner-clock">
+      <div class="t" data-klokke>–</div>
+      <div class="d" data-dato>–</div>
+    </div>
     <div class="fun-center">
       <div class="fun-heading"><span class="fun-emoji-bounce">🎉</span> Velkommen til<br>Løren Ishall! <span class="fun-emoji-bounce">⛸️</span></div>
       <div class="fun-sub">Gratis Skøyte- og Hockeyskole (SHS) 🏒</div>
@@ -427,6 +418,10 @@
 
   <!-- SLIDE (torsdager 17-18): Påminnelse om registrering/vaffelkort -->
   <div class="slide" id="slideReminder">
+    <div class="corner-clock">
+      <div class="t" data-klokke>–</div>
+      <div class="d" data-dato>–</div>
+    </div>
     <div class="fun-center">
       <div class="fun-heading">🧇 Husk å registrere deg!</div>
       <div class="fun-sub">...og bruk vaffelkortet 😋</div>
@@ -439,8 +434,8 @@
     <header>
       <div class="header-side left">
         <div class="clock-block">
-          <div class="clock-time" id="clockTime">–</div>
-          <div class="clock-date" id="clockDate">–</div>
+          <div class="clock-time" data-klokke>–</div>
+          <div class="clock-date" data-dato>–</div>
         </div>
       </div>
 
@@ -700,17 +695,11 @@ function tick() {
   const now = new Date();
   const nowMin = now.getHours() * 60 + now.getMinutes();
 
-  // Klokke og dato øverst til venstre
-  document.getElementById("clockTime").textContent =
-    pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
-  document.getElementById("clockDate").textContent =
-    now.toLocaleDateString("nb-NO", { weekday: "long", day: "numeric", month: "long" });
-
-  // Storklokke-sliden (samme klokkeslett, egen visning)
-  document.getElementById("introClockTime").textContent =
-    pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
-  document.getElementById("introClockDate").textContent =
-    now.toLocaleDateString("nb-NO", { weekday: "long", day: "numeric", month: "long" });
+  // Klokke og dato: istid-sidens header og hjørneklokka på de andre sidene
+  const klokkeTekst = pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds());
+  const datoTekst = now.toLocaleDateString("nb-NO", { weekday: "long", day: "numeric", month: "long" });
+  document.querySelectorAll("[data-klokke]").forEach(e => e.textContent = klokkeTekst);
+  document.querySelectorAll("[data-dato]").forEach(e => e.textContent = datoTekst);
 
   // Kiosk-status nederst
   const status = kioskStatus(now);
@@ -835,12 +824,11 @@ setInterval(refreshData, REFRESH_DATA_MS);
 setInterval(tick, REFRESH_CLOCK_MS);
 
 /* ============ SLIDE-KARUSELL ============ */
-const ALL_SLIDE_IDS = ["slideWelcome", "slideClock", "slideSchedule", "slideSHS", "slideReminder"];
+const ALL_SLIDE_IDS = ["slideWelcome", "slideSchedule", "slideSHS", "slideReminder"];
 
 // Vanlig rotasjon
 const NORMAL_SLIDES = [
   { id: "slideWelcome", duration: 3000 },
-  { id: "slideClock",   duration: 2000 },
   { id: "slideSchedule", duration: 10000 },
 ];
 
