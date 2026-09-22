@@ -369,6 +369,35 @@
     display: block; margin-top: 0.3vw;
     font-size: 1.05vw; font-weight: 900; color: var(--deep);
   }
+
+  /* Ukens bortekamper */
+  .card.bortekamper { flex: 0 0 auto; max-height: 34%; }
+  .card.bortekamper .badge { background: #7a8a96; }
+  .borte-liste { flex: 1; min-height: 0; overflow: hidden; }
+  .borte-rad {
+    display: grid; grid-template-columns: auto 1fr auto;
+    align-items: center; gap: 0.8vw;
+    padding: 0.42vw 1.1vw;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .borte-lag {
+    min-width: 3.4vw; text-align: center;
+    background: #5a6874; color: #ffffff;
+    font-size: 0.78vw; font-weight: 900; letter-spacing: 0.04em;
+    padding: 0.28vw 0.5vw;
+  }
+  .borte-sted {
+    font-size: 0.95vw; font-weight: 800; color: var(--text);
+    min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .borte-dag {
+    flex-shrink: 0; font-size: 0.8vw; font-weight: 900; color: #4a5a66;
+    background: #edf0f3; padding: 0.28vw 0.55vw; white-space: nowrap;
+    text-transform: capitalize;
+  }
+  .borte-flere {
+    padding: 0.35vw 1.1vw; font-size: 0.7vw; font-weight: 700; color: var(--muted);
+  }
 </style>
 </head>
 <body>
@@ -465,6 +494,15 @@
           <div class="badge">Neste ut</div>
           <div class="entries" id="nextEntries"><div class="card-empty">Laster …</div></div>
           <div class="progress-label" id="nextCountdown"></div>
+        </div>
+
+        <!-- KOMMENDE BORTEKAMPER
+             Hentes fra resultat-repoets data/kamper.json (se KAMPER_URL i
+             scriptet). Én linje per lag: hvor de skal, og hvilke dager.
+             Boksen skjules når ingen av klubbens lag har bortekamp. -->
+        <div class="card bortekamper" id="borteBoks" style="display:none;">
+          <div class="badge">Kommende bortekamper</div>
+          <div class="borte-liste" id="borteListe"></div>
         </div>
 
         <!-- MERKNADSBOKS
@@ -792,7 +830,117 @@ async function refreshData() {
   // (Den egne info-siden er fjernet - merknaden står nå sammen med istidene.)
   visMerknad(cachedInfoNotes.join("\n\n"));
 
+  await hentBortekamper();
   tick();
+}
+
+/* ============ KOMMENDE BORTEKAMPER ============
+   Kampene hentes fra resultat-repoet, som allerede oppdaterer sin egen
+   data/kamper.json hvert 30. minutt. GitHub Pages sender
+   Access-Control-Allow-Origin: *, så denne siden får lov til å lese fila
+   selv om den ligger på et annet domene. Ingen ny workflow her.
+
+   Går hentingen galt, beholdes forrige sett og boksen står uendret. */
+const KAMPER_URL = "https://rislerasle1.github.io/resultater/data/kamper.json";
+const BORTE_DAGER = 7;          // hvor mange dager fram vi ser
+const BORTE_MAKS_LINJER = 4;    // så mange lag får plass i boksen
+
+/* Hvilke serier boksen dekker. Sammenlignes mot "divisjon"-feltet i
+   kamper.json, som bruker navn som "U15C", "U14B", "U20 1. divisjon",
+   "JU14" og "2. divisjon menn". Mønstrene ser bare på starten av navnet,
+   så de tåler at bokstaven bak endrer seg fra sesong til sesong.
+   Legg til eller fjern en linje for å endre utvalget. */
+const BORTE_SERIER = [
+  /^U14/i,              // U14B
+  /^U15/i,              // U15C
+  /^U20/i,              // U20 1. divisjon
+  /^JU14/i,             // JU14
+  /^2\.\s*divisjon/i    // 2. divisjon menn (Elite)
+];
+
+function serienErMed(divisjon) {
+  const d = String(divisjon || "").trim();
+  return BORTE_SERIER.some(m => m.test(d));
+}
+const KLUBB = /hasle\s*[-/ ]?\s*l(ø|o)ren/i;
+
+/* Lagnavnet fra kampoppsettet er klubbnavnet + lagnavn, f.eks.
+   "Hasle/Løren Ishockeyklubb U15". Vi vil bare ha "U15". */
+function lagEtikett(navn, divisjon) {
+  const rest = String(navn || "")
+    .replace(KLUBB, " ")
+    .replace(/ishockeyklubb|ishockey|hockey|idrettslag|\bil\b|\bihk\b/gi, " ")
+    .replace(/\s+/g, " ").trim();
+  if (rest) return rest;
+  // Ikke noe igjen? Bruk divisjonen: "U15C" -> "U15", "JU14" -> "JU14"
+  const d = String(divisjon || "").match(/^(J?U\d+|\d+\.\s*divisjon)/i);
+  return d ? d[1].replace(/\s+/g, " ") : (divisjon || "Laget");
+}
+
+let cachedBorte = null;
+
+async function hentBortekamper() {
+  try {
+    const res = await fetch(KAMPER_URL + "?t=" + Date.now(), { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    cachedBorte = Array.isArray(data.kamper) ? data.kamper : [];
+  } catch (e) {
+    // behold forrige sett - skjermen skal aldri gå tom på grunn av dette
+  }
+  visBortekamper();
+}
+
+function visBortekamper() {
+  const boks = document.getElementById("borteBoks");
+  const liste = document.getElementById("borteListe");
+  if (!cachedBorte) { boks.style.display = "none"; return; }
+
+  const naa = new Date();
+  const fra = new Date(naa.getFullYear(), naa.getMonth(), naa.getDate());
+  const til = new Date(fra);
+  til.setDate(til.getDate() + BORTE_DAGER);
+
+  // Én rad per lag og arena, med alle dagene laget er der
+  const grupper = new Map();
+
+  cachedBorte.forEach(k => {
+    if (!KLUBB.test(k.borte || "") || KLUBB.test(k.hjemme || "")) return;  // kun bortekamper
+    if (!serienErMed(k.divisjon)) return;                                  // kun seriene i BORTE_SERIER
+    const m = String(k.dato || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!m) return;
+    const d = new Date(+m[1], +m[2] - 1, +m[3]);
+    if (d < fra || d >= til) return;
+
+    const lag = lagEtikett(k.borte, k.divisjon);
+    const arena = (k.arena || "").trim();
+    const nokkel = lag + "|" + arena;
+
+    if (!grupper.has(nokkel)) {
+      grupper.set(nokkel, { lag, arena, forste: d, dager: [] });
+    }
+    const g = grupper.get(nokkel);
+    const dag = NB_WEEKDAYS[d.getDay()];
+    if (!g.dager.includes(dag)) g.dager.push(dag);
+    if (d < g.forste) g.forste = d;
+  });
+
+  const rader = [...grupper.values()].sort((a, b) => a.forste - b.forste);
+
+  if (!rader.length) { boks.style.display = "none"; return; }
+
+  const vis = rader.slice(0, BORTE_MAKS_LINJER);
+  liste.innerHTML = vis.map(g => `
+    <div class="borte-rad">
+      <div class="borte-lag">${g.lag}</div>
+      <div class="borte-sted">${g.arena}</div>
+      <div class="borte-dag">${g.dager.join(" + ")}</div>
+    </div>`).join("") +
+    (rader.length > vis.length
+      ? `<div class="borte-flere">+ ${rader.length - vis.length} lag til på bortebane</div>`
+      : "");
+
+  boks.style.display = "flex";
 }
 
 /* ============ MERKNADSBOKS ============
