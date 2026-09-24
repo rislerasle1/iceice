@@ -95,6 +95,51 @@
   .intro-logos img.logo-hasle { max-height: 6.4vw; max-width: 30vw; object-fit: contain; }
   .intro-logos img.logo-oslo { max-height: 12.8vw; max-width: 60vw; object-fit: contain; }
 
+  /* ---- Frigåing-slide (søndager 10:45-12:30, erstatter vanlig velkomst) ---- */
+  #slideFrigaing { background: #12181f; }
+  #slideFrigaing.slide-welcome::before { background: var(--red); border-bottom-color: #000; }
+  #slideFrigaing .corner-clock .t { color: #ffffff; }
+  #slideFrigaing .corner-clock .d { color: rgba(255,255,255,0.65); }
+  .frigaing-center {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+    padding: 1.5vw; gap: 1.6vw;
+  }
+  .frigaing-heading {
+    font-weight: 900; font-size: 6.4vw; color: #ffffff;
+    line-height: 1.02; letter-spacing: -0.02em; text-transform: uppercase;
+  }
+  .frigaing-list {
+    display: flex; flex-direction: column; gap: 0.9vw;
+    align-items: stretch; width: 74vw;
+  }
+  .frigaing-item {
+    display: flex; align-items: center; justify-content: center; gap: 1vw;
+    flex-wrap: wrap;
+    font-size: 2vw; font-weight: 900; line-height: 1.15;
+    color: #ffffff; background: var(--deep-2);
+    padding: 1vw 1.6vw; text-align: center;
+    text-transform: uppercase; letter-spacing: -0.01em;
+  }
+  .frigaing-item.warn {
+    background: var(--red); color: #ffffff;
+    box-shadow: 0 0 0 0.3vw #000 inset;
+  }
+  .frigaing-item b { color: #ffe38a; }
+  .frigaing-item .muted {
+    display: block; flex-basis: 100%;
+    font-size: 0.55vw; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: none; color: rgba(255,255,255,0.75); margin-top: 0.3vw;
+  }
+
+  /* ---- Banner-slide (fast i rotasjonen hver dag, 4 sek etter istider) ---- */
+  .slide-banner {
+    align-items: center; justify-content: center; background: #0a1622;
+  }
+  .slide-banner img {
+    max-width: 100%; max-height: 100%; object-fit: contain;
+  }
+
   /* ---- Lekne barne-slides (torsdager 17-18) ---- */
   @keyframes funGradient {
     0% { background-position: 0% 50%; }
@@ -456,6 +501,32 @@
       <div class="fun-sub">...og bruk vaffelkortet 😋</div>
       <div class="fun-arrow-row"><span class="fun-emoji-bounce">⬅️</span> Bruk garderobe <b>4</b> og <b>5</b></div>
     </div>
+  </div>
+
+  <!-- SLIDE (søndager 10:45-12:30): Frigåing - erstatter vanlig velkomst i dette tidsrommet -->
+  <div class="slide slide-welcome" id="slideFrigaing">
+    <div class="corner-clock">
+      <div class="t" data-klokke>–</div>
+      <div class="d" data-dato>–</div>
+    </div>
+    <div class="frigaing-center">
+      <div class="frigaing-heading">Velkommen til<br>Frigåing</div>
+      <div class="frigaing-list">
+        <div class="frigaing-item">🕚 Frigåing starter <b>kl. 11:00</b></div>
+        <div class="frigaing-item warn">⛔ Ikke gå ut på isen før porten til isbilen er lukket</div>
+        <div class="frigaing-item warn">🚫 Skifting på tribune er forbudt</div>
+        <div class="frigaing-item">🧥 Bruk garderobe <b>5</b> og <b>6</b> <span class="muted">(garderobe 6 er ved skyterinken)</span></div>
+      </div>
+    </div>
+    <div class="intro-logos">
+      <img class="logo-hasle" src="https://cdn-bloc.no/background/200000195/7987/2026/4/23/hl_logo.png" alt="Hasle/Løren logo">
+      <img class="logo-oslo" src="https://oslobyleksikon.no/images/thumb/2/28/Oslo-logo-sort-RGB.jpg/800px-Oslo-logo-sort-RGB.jpg?20191008125845" alt="Oslo kommune logo">
+    </div>
+  </div>
+
+  <!-- SLIDE: Banner for gratis Skøyte- og Hockeyskole - fast i rotasjonen hver dag, 4 sek etter istider -->
+  <div class="slide slide-banner" id="slideBanner">
+    <img src="https://raw.githubusercontent.com/rislerasle1/iceice/main/banner%20sk%C3%B8yte%20og%20hockeyskolen.png" alt="Gratis Skøyte- og Hockeyskole">
   </div>
 
   <!-- SLIDE 3: Istider (hovedinnhold) -->
@@ -972,7 +1043,7 @@ setInterval(refreshData, REFRESH_DATA_MS);
 setInterval(tick, REFRESH_CLOCK_MS);
 
 /* ============ SLIDE-KARUSELL ============ */
-const ALL_SLIDE_IDS = ["slideWelcome", "slideSchedule", "slideSHS", "slideReminder"];
+const ALL_SLIDE_IDS = ["slideWelcome", "slideFrigaing", "slideBanner", "slideSchedule", "slideSHS", "slideReminder"];
 
 // Vanlig rotasjon
 const NORMAL_SLIDES = [
@@ -992,9 +1063,40 @@ function isThursdayHappyHour(date) {
   return date.getDay() === 4 && nowMin >= 17 * 60 && nowMin < 18 * 60; // 4 = torsdag
 }
 
-// Velger rotasjon. Torsdager 17-18 kjører SHS-variantene, ellers vanlig.
+// Søndager 10:45-12:30: Frigåing-siden skal stå i stedet for vanlig velkomst.
+function isSundayFrigaing(date) {
+  const nowMin = date.getHours() * 60 + date.getMinutes();
+  return date.getDay() === 0 && nowMin >= (10 * 60 + 45) && nowMin < (12 * 60 + 30); // 0 = søndag
+}
+
+// Velger rotasjon, og legger alltid inn banneret rett etter istid-siden.
 function currentSlideList() {
-  return isThursdayHappyHour(new Date()) ? THURSDAY_HAPPY_SLIDES : NORMAL_SLIDES;
+  const now = new Date();
+  let base = isThursdayHappyHour(now) ? THURSDAY_HAPPY_SLIDES : NORMAL_SLIDES;
+
+  // Søndager 10:45-12:30: bytt ut vanlig velkomst med Frigåing-siden
+  if (isSundayFrigaing(now)) {
+    base = base.map(item =>
+      item.id === "slideWelcome" ? { id: "slideFrigaing", duration: item.duration } : item
+    );
+  }
+
+  // Banneret for gratis Skøyte- og Hockeyskole er fast i rotasjonen hver
+  // dag, uansett hvilken av rotasjonene over som ellers kjører.
+  const withBanner = [];
+  base.forEach(item => {
+    withBanner.push(item);
+    if (item.id === "slideSchedule") {
+      withBanner.push({ id: "slideBanner", duration: 4000 });
+    }
+  });
+
+  // På søndager skal alle sidene stå lenger: 10 sekunder hver, uansett hvilken side det er.
+  if (now.getDay() === 0) {
+    return withBanner.map(item => ({ id: item.id, duration: 10000 }));
+  }
+
+  return withBanner;
 }
 
 let slideIndex = 0;
