@@ -443,68 +443,6 @@
   .borte-flere {
     padding: 0.35vw 1.1vw; font-size: 0.7vw; font-weight: 700; color: var(--muted);
   }
-
-  /* ============ HØSTPYNT (høstferien, t.o.m. 4. oktober) ============
-     Alt under er bare synlig når <body> har klassen "host".
-     Klassen settes av scriptet nederst ut fra HOST_TIL-datoen,
-     så siden går tilbake til vanlig utseende av seg selv. */
-  .host-only { display: none; }
-  body.host .host-only { display: block; }
-
-  /* Løv ved siden av tittelen i topplinja */
-  .title { position: relative; }
-  .header-leaves {
-    position: absolute; top: 50%; left: 100%;
-    transform: translateY(-50%);
-    margin-left: 1.4vw;
-    width: 8.4vw; height: 3.8vw;
-    pointer-events: none;
-  }
-  .header-leaves svg { position: absolute; }
-  .header-leaves .l1 { width: 2.8vw; left: 0;     top: 0.1vw;  transform: rotate(-18deg); animation: sway 5s ease-in-out infinite; }
-  .header-leaves .l2 { width: 2vw;   left: 3vw;   top: 1.7vw;  transform: rotate(24deg);  animation: sway 6s ease-in-out infinite reverse; }
-  .header-leaves .l3 { width: 2.5vw; left: 5.3vw; top: -0.3vw; transform: rotate(8deg);   animation: sway 5.5s ease-in-out infinite; }
-  @keyframes sway {
-    0%, 100% { rotate: -6deg; }
-    50% { rotate: 6deg; }
-  }
-
-  /* Løv som daler ned over sidene */
-  .leaf-fall {
-    position: absolute; inset: 0; overflow: hidden;
-    pointer-events: none; z-index: 20;
-  }
-  .leaf-fall .leaf {
-    position: absolute; top: -8%;
-    animation-name: leafFall; animation-timing-function: linear; animation-iteration-count: infinite;
-  }
-  .leaf-fall .leaf svg { display: block; width: 100%; animation: leafSpin 4s ease-in-out infinite alternate; }
-  @keyframes leafFall {
-    0%   { transform: translate(0, 0); opacity: 0; }
-    8%   { opacity: 0.95; }
-    50%  { transform: translate(4vw, 30vw); }
-    92%  { opacity: 0.95; }
-    100% { transform: translate(-2vw, 62vw); opacity: 0; }
-  }
-  @keyframes leafSpin {
-    from { transform: rotate(-35deg) rotateY(0deg); }
-    to   { transform: rotate(35deg) rotateY(55deg); }
-  }
-  /* Løvhaug i hjørnene på velkomstsiden */
-  .leaf-corner { position: absolute; bottom: 0; width: 16vw; pointer-events: none; z-index: 1; }
-  .leaf-corner.left { left: 0; }
-  .leaf-corner.right { right: 0; transform: scaleX(-1); }
-  .intro-logos, .intro-center { position: relative; z-index: 2; }
-
-  /* "God høstferie!" på velkomstsiden */
-  .host-greeting {
-    margin-top: 2vw;
-    font-weight: 900; font-size: 3.4vw; line-height: 1;
-    letter-spacing: -0.01em;
-    color: #c2410c;
-  }
-  .host-greeting .emoji { display: inline-block; animation: bounceEmoji 1.6s ease-in-out infinite; }
-  body.host .intro-rule { background: linear-gradient(90deg, #b91c1c, #ea580c, #f59e0b); }
 </style>
 </head>
 <body>
@@ -517,11 +455,6 @@
     <rect width="33" height="33" fill="#ffffff"></rect>
     <path fill="#0d3b66" d="M2 2h7v1h-7zM12 2h1v1h-1zM16 2h1v1h-1zM19 2h2v1h-2zM24 2h7v1h-7zM2 3h1v1h-1zM8 3h1v1h-1zM10 3h4v1h-4zM16 3h3v1h-3zM20 3h1v1h-1zM22 3h1v1h-1zM24 3h1v1h-1zM30 3h1v1h-1zM2 4h1v1h-1zM4 4h3v1h-3zM8 4h1v1h-1zM10 4h1v1h-1zM12 4h3v1h-3zM16 4h1v1h-1zM18 4h1v1h-1zM24 4h1v1h-1zM26 4h3v1h-3zM30 4h1v1h-1zM2 5h1v1h-1zM4 5h3v1h-3zM8 5h1v1h-1zM12 5h2v1h-2zM15 5h3v1h-3zM19 5h1v1h-1zM24 5h1v1h-1zM26 5h3v1h-3zM30 5h1v1h-1zM2 6h1v1h-1zM4 6h3v1h-3zM8 6h1v1h-1zM12 6h4v1h-4zM18 6h4v1h-4zM24 6h1v1h-1zM26 6h3v1h-3zM30 6h1v1h-1zM2 7h1v1h-1zM8 7h1v1h-1zM14 7h1v1h-1zM16 7h1v1h-1zM18 7h1v1h-1zM21 7h2v1h-2zM24 7h1v1h-1zM30 7h1v1h-1zM2 8h7v1h-7zM10 8h1v1h-1zM12 8h1v1h-1zM14 8h1v1h-1zM16 8h1v1h-1zM18 8h1v1h-1zM20 8h1v1h-1zM22 8h1v1h-1zM24 8h7v1h-7zM15 9h5v1h-5zM22 9h1v1h-1zM3 10h3v1h-3zM7 10h2v1h-2zM11 10h3v1h-3zM17 10h2v1h-2zM22 10h1v1h-1zM28 10h2v1h-2zM4 11h1v1h-1zM6 11h2v1h-2zM9 11h1v1h-1zM12 11h3v1h-3zM19 11h4v1h-4zM24 11h5v1h-5zM30 11h1v1h-1zM2 12h1v1h-1zM7 12h2v1h-2zM10 12h1v1h-1zM14 12h2v1h-2zM17 12h1v1h-1zM19 12h1v1h-1zM24 12h1v1h-1zM26 12h2v1h-2zM29 12h1v1h-1zM2 13h2v1h-2zM11 13h1v1h-1zM14 13h5v1h-5zM20 13h3v1h-3zM30 13h1v1h-1zM4 14h1v1h-1zM6 14h1v1h-1zM8 14h3v1h-3zM12 14h4v1h-4zM19 14h1v1h-1zM23 14h1v1h-1zM25 14h1v1h-1zM28 14h3v1h-3zM2 15h4v1h-4zM9 15h1v1h-1zM13 15h5v1h-5zM20 15h2v1h-2zM24 15h2v1h-2zM27 15h2v1h-2zM30 15h1v1h-1zM3 16h1v1h-1zM6 16h3v1h-3zM10 16h6v1h-6zM17 16h1v1h-1zM19 16h3v1h-3zM23 16h5v1h-5zM29 16h2v1h-2zM3 17h5v1h-5zM9 17h1v1h-1zM11 17h2v1h-2zM16 17h1v1h-1zM18 17h3v1h-3zM22 17h2v1h-2zM26 17h2v1h-2zM30 17h1v1h-1zM2 18h2v1h-2zM5 18h1v1h-1zM8 18h4v1h-4zM14 18h1v1h-1zM17 18h4v1h-4zM22 18h2v1h-2zM26 18h2v1h-2zM7 19h1v1h-1zM10 19h1v1h-1zM12 19h2v1h-2zM15 19h2v1h-2zM18 19h1v1h-1zM22 19h1v1h-1zM25 19h1v1h-1zM28 19h1v1h-1zM2 20h1v1h-1zM4 20h7v1h-7zM13 20h2v1h-2zM17 20h2v1h-2zM24 20h4v1h-4zM4 21h1v1h-1zM10 21h1v1h-1zM12 21h2v1h-2zM16 21h1v1h-1zM19 21h2v1h-2zM23 21h4v1h-4zM28 21h3v1h-3zM3 22h1v1h-1zM6 22h1v1h-1zM8 22h1v1h-1zM10 22h3v1h-3zM15 22h1v1h-1zM18 22h11v1h-11zM10 23h1v1h-1zM15 23h1v1h-1zM21 23h2v1h-2zM26 23h2v1h-2zM29 23h2v1h-2zM2 24h7v1h-7zM11 24h2v1h-2zM15 24h1v1h-1zM19 24h1v1h-1zM21 24h2v1h-2zM24 24h1v1h-1zM26 24h1v1h-1zM28 24h2v1h-2zM2 25h1v1h-1zM8 25h1v1h-1zM10 25h1v1h-1zM12 25h2v1h-2zM16 25h1v1h-1zM20 25h1v1h-1zM22 25h1v1h-1zM26 25h1v1h-1zM2 26h1v1h-1zM4 26h3v1h-3zM8 26h1v1h-1zM11 26h2v1h-2zM20 26h1v1h-1zM22 26h7v1h-7zM30 26h1v1h-1zM2 27h1v1h-1zM4 27h3v1h-3zM8 27h1v1h-1zM10 27h2v1h-2zM13 27h3v1h-3zM18 27h4v1h-4zM26 27h2v1h-2zM29 27h1v1h-1zM2 28h1v1h-1zM4 28h3v1h-3zM8 28h1v1h-1zM10 28h4v1h-4zM16 28h4v1h-4zM22 28h1v1h-1zM25 28h1v1h-1zM28 28h1v1h-1zM30 28h1v1h-1zM2 29h1v1h-1zM8 29h1v1h-1zM10 29h5v1h-5zM16 29h1v1h-1zM18 29h1v1h-1zM20 29h1v1h-1zM22 29h3v1h-3zM26 29h2v1h-2zM29 29h1v1h-1zM2 30h7v1h-7zM11 30h1v1h-1zM17 30h1v1h-1zM20 30h4v1h-4zM25 30h1v1h-1zM29 30h1v1h-1z"></path>
   </symbol>
-  <!-- Lønneblad til høstpynten. Fargen styres med CSS "color" på <svg>. -->
-  <symbol id="blad" viewBox="0 0 100 100">
-    <path fill="currentColor" d="M50 2 L57 18 L66 13 L63 36 L76 24 L80 32 L95 29 L89 45 L97 49 L75 66 L79 74 L57 71 L52.5 97 L47.5 97 L43 71 L21 74 L25 66 L3 49 L11 45 L5 29 L20 32 L24 24 L37 36 L34 13 L43 18 Z"></path>
-    <path fill="none" stroke="rgba(0,0,0,0.22)" stroke-width="1.6" stroke-linecap="round" d="M50 92 L50 22 M50 62 L22 40 M50 62 L78 40 M50 70 L30 68 M50 70 L70 68"></path>
-  </symbol>
 </svg>
 
 <div class="stage-wrapper" id="stageWrapper">
@@ -532,24 +465,9 @@
       <div class="t" data-klokke>–</div>
       <div class="d" data-dato>–</div>
     </div>
-    <div class="leaf-fall host-only"></div>
-    <svg class="leaf-corner left host-only" viewBox="0 0 160 70" aria-hidden="true">
-      <use href="#blad" x="-6" y="30" width="44" height="44" style="color:#b91c1c" transform="rotate(-20 16 52)"></use>
-      <use href="#blad" x="22" y="36" width="38" height="38" style="color:#ea580c" transform="rotate(30 41 55)"></use>
-      <use href="#blad" x="50" y="44" width="30" height="30" style="color:#f59e0b" transform="rotate(-40 65 59)"></use>
-      <use href="#blad" x="8"  y="10" width="30" height="30" style="color:#d97706" transform="rotate(15 23 25)"></use>
-      <use href="#blad" x="78" y="52" width="22" height="22" style="color:#c2410c" transform="rotate(60 89 63)"></use>
-    </svg>
-    <svg class="leaf-corner right host-only" viewBox="0 0 160 70" aria-hidden="true">
-      <use href="#blad" x="-6" y="30" width="44" height="44" style="color:#ea580c" transform="rotate(-10 16 52)"></use>
-      <use href="#blad" x="24" y="38" width="36" height="36" style="color:#b91c1c" transform="rotate(40 42 56)"></use>
-      <use href="#blad" x="52" y="46" width="26" height="26" style="color:#eab308" transform="rotate(-30 65 59)"></use>
-      <use href="#blad" x="10" y="12" width="28" height="28" style="color:#f59e0b" transform="rotate(25 24 26)"></use>
-    </svg>
     <div class="intro-center">
       <div class="intro-heading">Velkommen til<br>Løren ishall</div>
       <div class="intro-rule"></div>
-      <div class="host-greeting host-only"><span class="emoji">🍁</span> God høstferie! <span class="emoji">🍂</span></div>
     </div>
     <div class="intro-logos">
       <img class="logo-hasle" src="https://cdn-bloc.no/background/200000195/7987/2026/4/23/hl_logo.png" alt="Hasle/Løren logo">
@@ -624,11 +542,6 @@
       <div class="title">
         <div class="kicker">🏒 Løren ishall</div>
         <h1>Istider i dag</h1>
-        <div class="header-leaves host-only" aria-hidden="true">
-          <svg class="l1" viewBox="0 0 100 100" style="color:#ea580c"><use href="#blad"></use></svg>
-          <svg class="l2" viewBox="0 0 100 100" style="color:#f59e0b"><use href="#blad"></use></svg>
-          <svg class="l3" viewBox="0 0 100 100" style="color:#dc2626"><use href="#blad"></use></svg>
-        </div>
       </div>
 
       <div class="header-side right">
@@ -1210,46 +1123,6 @@ function advanceSlide() {
 }
 
 advanceSlide();
-
-/* ============ HØSTPYNT ============
-   Løv og "God høstferie!" vises fram til og med HOST_TIL.
-   Etter det ser siden ut som vanlig igjen, uten at noe må endres.
-   Legg til ?host=1 i adressen for å se pynten uansett dato (for testing). */
-const HOST_TIL = new Date(2026, 9, 4, 23, 59, 59);   // 4. oktober 2026 (måned 9 = oktober)
-const HOST_FARGER = ["#b91c1c", "#dc2626", "#ea580c", "#f97316", "#f59e0b", "#eab308", "#a16207"];
-
-function hostAktiv() {
-  if (/[?&]host=1\b/.test(location.search)) return true;
-  return new Date() <= HOST_TIL;
-}
-
-function lagFallendeLov(container, antall) {
-  for (let i = 0; i < antall; i++) {
-    const blad = document.createElement("div");
-    blad.className = "leaf";
-    const str = 1.4 + Math.random() * 1.8;              // bladstørrelse i vw
-    blad.style.width = str + "vw";
-    blad.style.left = (Math.random() * 100) + "%";
-    blad.style.animationDuration = (9 + Math.random() * 9) + "s";
-    blad.style.animationDelay = (-Math.random() * 18) + "s";   // negativ = allerede i fart ved oppstart
-    const farge = HOST_FARGER[Math.floor(Math.random() * HOST_FARGER.length)];
-    blad.innerHTML = `<svg viewBox="0 0 100 100" style="color:${farge};animation-duration:${(3 + Math.random() * 3).toFixed(1)}s"><use href="#blad"></use></svg>`;
-    container.appendChild(blad);
-  }
-}
-
-function oppdaterHost() {
-  const aktiv = hostAktiv();
-  if (aktiv === document.body.classList.contains("host")) return;
-  document.body.classList.toggle("host", aktiv);
-  document.querySelectorAll(".leaf-fall").forEach(el => {
-    el.innerHTML = "";
-    if (aktiv) lagFallendeLov(el, 16);
-  });
-}
-
-oppdaterHost();
-setInterval(oppdaterHost, 60 * 1000);   // slår seg av av seg selv ved midnatt etter 4. oktober
 </script>
 </body>
 </html>
