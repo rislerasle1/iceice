@@ -6,7 +6,7 @@
 <title>Istider Lørenhallen – i dag</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800;900&family=Mountains+of+Christmas:wght@700&family=Creepster&display=swap" rel="stylesheet">
 <style>
   :root {
     --ice: #f4f8fb;
@@ -443,9 +443,9 @@
     padding: 0.35vw 1.1vw; font-size: 0.7vw; font-weight: 700; color: var(--muted);
   }
 
-  /* ============ HØSTPYNT (høstferien, t.o.m. 4. oktober) ============
+  /* ============ HØSTPYNT (t.o.m. 24. oktober) ============
      Alt under er bare synlig når <body> har klassen "host".
-     Klassen settes av scriptet nederst ut fra HOST_TIL-datoen,
+     Klassen settes av hostModus() i scriptet nederst,
      så siden går tilbake til vanlig utseende av seg selv. */
   .host-only { display: none; }
   body.host .host-only { display: block; }
@@ -504,6 +504,340 @@
   }
   .host-greeting .emoji { display: inline-block; animation: bounceEmoji 1.6s ease-in-out infinite; }
   body.host .intro-rule { background: linear-gradient(90deg, #b91c1c, #ea580c, #f59e0b); }
+
+  /* Etter høstferien (5. – 24. oktober): bare litt høstløv, uten "God høstferie!" */
+  body.host-lett .host-greeting { display: none; }
+  body.host-lett .leaf-corner { width: 10vw; opacity: 0.85; }
+
+  /* ============ JULEVELKOMST (1. desember – 6. januar) ============
+     Egen side (#slideJul) som står i stedet for vanlig velkomst i
+     juleperioden. Styres av JUL_FRA / JUL_TIL i scriptet nederst.
+     Alt er avgrenset til #slideJul så det ikke påvirker de andre sidene. */
+  #slideJul {
+    background:
+      radial-gradient(ellipse 60% 45% at 50% 42%, rgba(255,214,120,0.18), transparent 70%),
+      linear-gradient(180deg, #06122b 0%, #0b2350 45%, #163a73 75%, #2a5a97 100%);
+  }
+  #slideJul .jul-aurora {
+    position: absolute; left: -10%; right: -10%; top: 4%; height: 40%;
+    background:
+      radial-gradient(ellipse 40% 50% at 25% 50%, rgba(56,255,170,0.22), transparent 70%),
+      radial-gradient(ellipse 35% 45% at 70% 40%, rgba(120,200,255,0.18), transparent 70%),
+      radial-gradient(ellipse 30% 40% at 50% 60%, rgba(160,120,255,0.14), transparent 70%);
+    filter: blur(1.5vw);
+    animation: julAurora 14s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+  @keyframes julAurora {
+    from { transform: translateX(-3%) skewX(-6deg); opacity: 0.7; }
+    to   { transform: translateX(3%) skewX(6deg);  opacity: 1; }
+  }
+  #slideJul .jul-stars { position: absolute; inset: 0 0 40% 0; pointer-events: none; }
+  #slideJul .jul-stars i {
+    position: absolute; border-radius: 50%;
+    background: #fff; animation: julTwinkle 3s ease-in-out infinite;
+  }
+  @keyframes julTwinkle { 0%,100% { opacity: 0.2; } 50% { opacity: 1; } }
+
+  /* Lysslynge øverst */
+  #slideJul .jul-garland { position: absolute; top: 0; left: 0; right: 0; height: 7vw; z-index: 6; pointer-events: none; }
+  #slideJul .jul-garland svg { width: 100%; height: 100%; display: block; }
+  #slideJul .jul-blink { animation: julBlink 1.8s ease-in-out infinite; }
+  #slideJul .jul-blink:nth-of-type(3n)   { animation-delay: 0.6s; }
+  #slideJul .jul-blink:nth-of-type(3n+1) { animation-delay: 1.2s; }
+  @keyframes julBlink {
+    0%, 100% { opacity: 1; filter: drop-shadow(0 0 0.6vw currentColor); }
+    50%      { opacity: 0.35; filter: none; }
+  }
+
+  #slideJul .corner-clock { top: 4.6vw; left: 2.4vw; z-index: 7; }
+  #slideJul .corner-clock .t { color: #fff; text-shadow: 0 0.2vw 0.5vw rgba(0,0,0,0.4); }
+  #slideJul .corner-clock .d { color: rgba(255,255,255,0.8); }
+
+  /* Nedtelling til julaften */
+  #slideJul .jul-countdown {
+    position: absolute; top: 4.6vw; right: 2.4vw; z-index: 7;
+    background: #b3141c; color: #fff;
+    border: 0.2vw solid var(--gold); border-radius: 0.8vw;
+    padding: 0.6vw 1.1vw; text-align: center;
+    box-shadow: 0 0.4vw 1.2vw rgba(0,0,0,0.35);
+  }
+  #slideJul .jul-countdown .n { font-size: 2.6vw; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
+  #slideJul .jul-countdown .l { font-size: 0.7vw; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; margin-top: 0.3vw; }
+
+  #slideJul .intro-center { position: relative; z-index: 5; padding: 6vw 2vw 9vw; }
+  #slideJul .jul-star-top { width: 4.4vw; margin-bottom: 0.6vw; animation: julStarGlow 2.4s ease-in-out infinite; }
+  @keyframes julStarGlow {
+    0%,100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 0.8vw #ffd76a); }
+    50%     { transform: scale(1.12) rotate(8deg); filter: drop-shadow(0 0 2vw #ffd76a); }
+  }
+  #slideJul .intro-heading { font-size: 5.2vw; color: #fff; line-height: 1.08; text-shadow: 0 0.3vw 1vw rgba(0,0,0,0.45); }
+  #slideJul .intro-rule {
+    width: 18vw; height: 0.45vw; margin: 1.8vw auto 0; border-radius: 1vw;
+    background: repeating-linear-gradient(135deg, #fff 0 1vw, #b3141c 1vw 2vw);
+    box-shadow: 0 0 1vw rgba(255,255,255,0.4);
+  }
+  #slideJul .jul-greeting {
+    margin-top: 1.4vw;
+    font-family: "Mountains of Christmas", "Public Sans", cursive;
+    font-weight: 700; font-size: 6vw; line-height: 1; color: #ffd76a;
+    text-shadow: 0 0 1.4vw rgba(255,190,60,0.65), 0 0.3vw 0.4vw rgba(0,0,0,0.5);
+  }
+  #slideJul .jul-greeting .emoji { display: inline-block; font-size: 3.6vw; animation: bounceEmoji 1.6s ease-in-out infinite; }
+  #slideJul .jul-greeting .emoji:last-child { animation-delay: 0.8s; }
+
+  /* Juletrær og gaver */
+  #slideJul .jul-tree { position: absolute; bottom: 6.5vw; z-index: 4; }
+  #slideJul .jul-tree.left   { left: 3vw;   width: 15vw; }
+  #slideJul .jul-tree.left2  { left: 15vw;  width: 9vw; bottom: 6.8vw; z-index: 3; opacity: 0.9; }
+  #slideJul .jul-tree.right  { right: 3vw;  width: 15vw; }
+  #slideJul .jul-tree.right2 { right: 15vw; width: 9vw; bottom: 6.8vw; z-index: 3; opacity: 0.9; }
+  #slideJul .jul-tree .jul-blink { animation-duration: 2.2s; }
+  #slideJul .jul-gifts { position: absolute; bottom: 6vw; z-index: 5; width: 10vw; }
+  #slideJul .jul-gifts.left  { left: 12vw; }
+  #slideJul .jul-gifts.right { right: 12vw; transform: scaleX(-1); }
+
+  /* Nisse som titter opp bak snøfonna */
+  #slideJul .jul-nisse {
+    position: absolute; z-index: 7; bottom: 6.6vw; left: 27%; width: 7vw;
+    animation: julPeek 9s ease-in-out infinite;
+  }
+  @keyframes julPeek {
+    0%, 60%, 100% { transform: translateY(6vw); }
+    70%, 90%      { transform: translateY(0); }
+  }
+
+  /* Hvit snøfonn nederst, så logoene står rent */
+  #slideJul .jul-snowbank { position: absolute; left: 0; right: 0; bottom: 0; height: 9vw; z-index: 6; pointer-events: none; }
+  #slideJul .jul-snowbank svg { width: 100%; height: 100%; display: block; }
+  #slideJul .intro-logos {
+    position: absolute; left: 0; right: 0; bottom: 0; z-index: 8;
+    padding: 0 4vw 1.4vw;
+  }
+  #slideJul .intro-logos img.logo-hasle { max-height: 4.6vw; max-width: 22vw; }
+  #slideJul .intro-logos img.logo-oslo  { max-height: 7vw; max-width: 36vw; mix-blend-mode: multiply; }
+  #slideJul .jul-logo-mid {
+    font-size: 1vw; font-weight: 900; color: #b3141c;
+    letter-spacing: 0.2em; text-transform: uppercase;
+  }
+
+  /* Snøfall */
+  #slideJul .jul-snow { position: absolute; inset: 0; z-index: 9; pointer-events: none; overflow: hidden; }
+  #slideJul .jul-snow i {
+    position: absolute; top: -3%; border-radius: 50%; background: #fff;
+    animation-name: julFall; animation-timing-function: linear; animation-iteration-count: infinite;
+  }
+  @keyframes julFall {
+    0%   { transform: translate(0, 0); opacity: 0; }
+    10%  { opacity: 0.95; }
+    50%  { transform: translate(2vw, 30vw); }
+    100% { transform: translate(-1.5vw, 60vw); opacity: 0.7; }
+  }
+
+  /* ============ HALLOWEEN (25. – 31. oktober) ============
+     To deler, begge styrt av halloweenAktiv() i scriptet nederst:
+     1) #slideHalloween står i stedet for vanlig velkomst.
+     2) body.halloween gir istid-siden pynt i topplinja, kantene og
+        kioskstripa, så selve istidene er like lette å lese. */
+
+  /* ---- 1) Velkomstsiden ---- */
+  #slideHalloween {
+    background:
+      radial-gradient(ellipse 55% 50% at 50% 50%, rgba(255,120,20,0.16), transparent 70%),
+      linear-gradient(180deg, #0c0418 0%, #1e0b3a 45%, #3a1560 80%, #4a1d6e 100%);
+  }
+  #slideHalloween .hw-stars { position: absolute; inset: 0 0 45% 0; pointer-events: none; }
+  #slideHalloween .hw-stars i {
+    position: absolute; border-radius: 50%;
+    background: #fff; animation: hwTwinkle 3s ease-in-out infinite;
+  }
+  @keyframes hwTwinkle { 0%,100% { opacity: 0.15; } 50% { opacity: 0.9; } }
+
+  #slideHalloween .hw-moon {
+    position: absolute; top: 5vw; left: 50%; margin-left: 13vw;
+    width: 11vw; height: 11vw; border-radius: 50%;
+    background: radial-gradient(circle at 38% 36%, #fffbe6 0%, #ffe9a8 45%, #f2c86b 100%);
+    box-shadow: 0 0 4vw 1.2vw rgba(255,220,140,0.35), 0 0 10vw 3vw rgba(255,180,80,0.15);
+    z-index: 1;
+  }
+  #slideHalloween .hw-moon::before, #slideHalloween .hw-moon::after {
+    content: ""; position: absolute; border-radius: 50%; background: rgba(200,150,60,0.25);
+  }
+  #slideHalloween .hw-moon::before { width: 2.2vw; height: 2.2vw; top: 2.4vw; left: 5.6vw; }
+  #slideHalloween .hw-moon::after  { width: 1.4vw; height: 1.4vw; top: 6.4vw; left: 3vw; }
+
+  /* Flaggermus (brukes både på velkomstsiden og i topplinja på istid-siden) */
+  .hw-bat { position: absolute; z-index: 3; width: 4vw; pointer-events: none; animation: hwBatFly linear infinite; }
+  .hw-bat svg { width: 100%; display: block; animation: hwFlap 0.35s ease-in-out infinite alternate; }
+  @keyframes hwFlap { from { transform: scaleY(1); } to { transform: scaleY(0.45); } }
+  @keyframes hwBatFly {
+    0%   { transform: translate(-10vw, 0); }
+    25%  { transform: translate(25vw, -3vw); }
+    50%  { transform: translate(55vw, 2vw); }
+    75%  { transform: translate(85vw, -2vw); }
+    100% { transform: translate(115vw, 1vw); }
+  }
+
+  #slideHalloween .hw-web { position: absolute; top: 0; width: 16vw; z-index: 4; pointer-events: none; opacity: 0.75; }
+  #slideHalloween .hw-web.left { left: 0; }
+  #slideHalloween .hw-web.right { right: 0; transform: scaleX(-1); }
+  #slideHalloween .hw-spider {
+    position: absolute; top: 0; right: 17vw; z-index: 5; width: 2.6vw;
+    animation: hwSpiderDrop 7s ease-in-out infinite;
+  }
+  #slideHalloween .hw-spider svg { width: 100%; display: block; overflow: visible; }
+  @keyframes hwSpiderDrop {
+    0%, 100% { transform: translateY(0); }
+    45%, 60% { transform: translateY(9vw); }
+  }
+
+  #slideHalloween .corner-clock .t { color: #fff; text-shadow: 0 0.2vw 0.5vw rgba(0,0,0,0.5); }
+  #slideHalloween .corner-clock .d { color: rgba(255,255,255,0.75); }
+
+  /* Nedtelling til Halloween */
+  #slideHalloween .hw-countdown {
+    position: absolute; top: 1.7vw; right: 2.4vw; z-index: 7;
+    background: #ea580c; color: #1a0b00;
+    border: 0.2vw solid #1a0b00; border-radius: 0.8vw;
+    padding: 0.6vw 1.1vw; text-align: center;
+    box-shadow: 0 0 1.4vw rgba(255,120,20,0.55);
+  }
+  #slideHalloween .hw-countdown .n { font-size: 2.6vw; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
+  #slideHalloween .hw-countdown .l { font-size: 0.7vw; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase; margin-top: 0.3vw; }
+
+  #slideHalloween .intro-center { position: relative; z-index: 5; padding: 3vw 2vw 9vw; }
+  #slideHalloween .intro-heading { font-size: 5.2vw; color: #fff; line-height: 1.08; text-shadow: 0 0.3vw 1vw rgba(0,0,0,0.6); }
+  #slideHalloween .intro-rule {
+    width: 18vw; height: 0.45vw; margin: 1.8vw auto 0; border-radius: 1vw;
+    background: repeating-linear-gradient(135deg, #111 0 1vw, #f97316 1vw 2vw);
+    box-shadow: 0 0 1vw rgba(249,115,22,0.5);
+  }
+  #slideHalloween .hw-greeting {
+    margin-top: 1.4vw;
+    font-family: "Creepster", "Public Sans", cursive;
+    font-size: 6.4vw; line-height: 1; letter-spacing: 0.03em; color: #ff7a1a;
+    text-shadow: 0 0 1.4vw rgba(255,110,20,0.75), 0 0.3vw 0.4vw rgba(0,0,0,0.7);
+    animation: hwFlicker 5s linear infinite;
+  }
+  #slideHalloween .hw-greeting .emoji { display: inline-block; font-size: 3.8vw; animation: bounceEmoji 1.6s ease-in-out infinite; }
+  #slideHalloween .hw-greeting .emoji:last-child { animation-delay: 0.8s; }
+  @keyframes hwFlicker {
+    0%, 18%, 22%, 62%, 64%, 100% { opacity: 1; }
+    20%, 63% { opacity: 0.55; }
+  }
+
+  #slideHalloween .hw-ghost {
+    position: absolute; z-index: 4; width: 7vw; top: 16vw; left: 11vw;
+    animation: hwGhost 6s ease-in-out infinite;
+    filter: drop-shadow(0 0 1.2vw rgba(255,255,255,0.45));
+  }
+  @keyframes hwGhost {
+    0%, 100% { transform: translate(0, 0) rotate(-4deg); opacity: 0.9; }
+    50%      { transform: translate(2vw, -2vw) rotate(4deg); opacity: 0.6; }
+  }
+  #slideHalloween .hw-tree { position: absolute; bottom: 5vw; z-index: 2; width: 18vw; }
+  #slideHalloween .hw-tree.left  { left: -2vw; }
+  #slideHalloween .hw-tree.right { right: -2vw; transform: scaleX(-1); }
+
+  #slideHalloween .hw-pumpkin { position: absolute; bottom: 4.6vw; z-index: 6; }
+  #slideHalloween .hw-pumpkin svg { width: 100%; display: block; overflow: visible; }
+  #slideHalloween .hw-pumpkin.p1 { left: 13vw; width: 8vw; }
+  #slideHalloween .hw-pumpkin.p2 { left: 21vw; width: 5.2vw; bottom: 4.8vw; }
+  #slideHalloween .hw-pumpkin.p3 { right: 13vw; width: 8.6vw; }
+  #slideHalloween .hw-pumpkin.p4 { right: 22vw; width: 5vw; bottom: 4.8vw; }
+  /* Flakkende lys i gresskarene (også på istid-siden) */
+  .hw-pumpkin .glow, .hw-tittel-pynt .glow { animation: hwCandle 2.2s ease-in-out infinite; }
+  .hw-pumpkin.p2 .glow, .hw-pumpkin.p4 .glow, .hw-tittel-pynt.h .glow { animation-delay: 0.7s; }
+  @keyframes hwCandle { 0%,100% { opacity: 1; } 30% { opacity: 0.7; } 50% { opacity: 0.95; } 70% { opacity: 0.65; } }
+
+  #slideHalloween .hw-ground { position: absolute; left: 0; right: 0; bottom: 0; height: 8vw; z-index: 5; pointer-events: none; }
+  #slideHalloween .hw-ground svg { width: 100%; height: 100%; display: block; }
+  #slideHalloween .hw-fog {
+    position: absolute; left: -20%; right: -20%; bottom: 3vw; height: 7vw; z-index: 7;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 25% 60% at 20% 60%, rgba(220,210,255,0.22), transparent 70%),
+      radial-gradient(ellipse 30% 55% at 55% 50%, rgba(220,210,255,0.18), transparent 70%),
+      radial-gradient(ellipse 25% 60% at 85% 60%, rgba(220,210,255,0.22), transparent 70%);
+    filter: blur(0.8vw);
+    animation: hwFog 16s ease-in-out infinite alternate;
+  }
+  @keyframes hwFog { from { transform: translateX(-6%); } to { transform: translateX(6%); } }
+
+  #slideHalloween .intro-logos { position: absolute; left: 0; right: 0; bottom: 0; z-index: 8; padding: 0 4vw 1.2vw; }
+  #slideHalloween .intro-logos img.logo-hasle { max-height: 4.6vw; max-width: 22vw; }
+  /* Oslo-logoen har hvit bakgrunn, så den står på en lys plate */
+  #slideHalloween .intro-logos img.logo-oslo {
+    max-height: 7vw; max-width: 34vw;
+    background: #fff; padding: 0.4vw 0.8vw; border-radius: 0.6vw;
+    box-shadow: 0 0 1.2vw rgba(249,115,22,0.45);
+  }
+  #slideHalloween .hw-logo-mid {
+    font-size: 1vw; font-weight: 900; color: #fb923c;
+    letter-spacing: 0.2em; text-transform: uppercase;
+  }
+
+  /* ---- 2) Istid-siden ---- */
+  .hw-only { display: none; }
+  body.halloween .hw-only { display: block; }
+
+  body.halloween #slideSchedule header {
+    position: relative; overflow: hidden;
+    padding-top: 1.9vw;
+    background: linear-gradient(180deg, #12061f 0%, #2a0f4a 100%);
+    border-bottom: 0;
+  }
+  body.halloween #slideSchedule header::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 0.35vw;
+    background: repeating-linear-gradient(135deg, #111 0 0.8vw, #f97316 0.8vw 1.6vw);
+  }
+  body.halloween #slideSchedule .header-side,
+  body.halloween #slideSchedule .title { position: relative; z-index: 2; }
+  body.halloween #slideSchedule .title .kicker { color: #fb923c; }
+  body.halloween #slideSchedule .clock-date { color: #c4b5fd; }
+
+  .hw-slynge { position: absolute; left: 0; right: 0; top: 0; height: 1.9vw; z-index: 3; pointer-events: none; }
+  .hw-slynge svg { width: 100%; height: 100%; display: block; }
+  .hw-pære { animation: hwPære 2.4s ease-in-out infinite; }
+  .hw-pære:nth-of-type(2n) { animation-delay: 1.2s; }
+  @keyframes hwPære {
+    0%, 100% { opacity: 1; filter: drop-shadow(0 0 0.4vw currentColor); }
+    50%      { opacity: 0.4; filter: none; }
+  }
+
+  .hw-nett { position: absolute; top: 0; left: 0; width: 7vw; z-index: 1; pointer-events: none; opacity: 0.6; }
+  .hw-nett.h { left: auto; right: 0; transform: scaleX(-1); }
+  #slideSchedule .hw-bat { z-index: 1; width: 1.8vw; animation-name: hwBatHeader; }
+  @keyframes hwBatHeader {
+    0%   { transform: translate(-5vw, 0); }
+    50%  { transform: translate(50vw, -0.8vw); }
+    100% { transform: translate(105vw, 0.4vw); }
+  }
+
+  .hw-tittel-pynt {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 3.4vw; pointer-events: none;
+  }
+  .hw-tittel-pynt.v { right: 100%; margin-right: 1.2vw; }
+  .hw-tittel-pynt.h { left: 100%;  margin-left: 1.2vw; }
+  .hw-tittel-pynt svg { width: 100%; display: block; }
+
+  body.halloween .card.now { position: relative; overflow: visible; }
+  body.halloween .card.now .badge { overflow: visible; }
+  .hw-edderkopp {
+    position: absolute; right: 1.2vw; top: -1.1vw; width: 1.6vw; z-index: 3;
+    pointer-events: none; animation: hwDrop 6s ease-in-out infinite;
+  }
+  .hw-edderkopp svg { width: 100%; display: block; overflow: visible; }
+  @keyframes hwDrop { 0%, 100% { transform: translateY(0); } 45%, 60% { transform: translateY(1.2vw); } }
+
+  body.halloween .list-title::before { content: "🎃 "; letter-spacing: 0; }
+
+  body.halloween .kiosk-bar.closed { background: #4c1d95; }
+  body.halloween .kiosk-bar.open { background: #c2410c; }
+
+  body.halloween .card.merknad { border-left-color: #f97316; background: #fff7ed; }
+  body.halloween .note-head { background: #1a0b2e; color: #fb923c; }
 </style>
 </head>
 <body>
@@ -520,6 +854,53 @@
   <symbol id="blad" viewBox="0 0 100 100">
     <path fill="currentColor" d="M50 2 L57 18 L66 13 L63 36 L76 24 L80 32 L95 29 L89 45 L97 49 L75 66 L79 74 L57 71 L52.5 97 L47.5 97 L43 71 L21 74 L25 66 L3 49 L11 45 L5 29 L20 32 L24 24 L37 36 L34 13 L43 18 Z"></path>
     <path fill="none" stroke="rgba(0,0,0,0.22)" stroke-width="1.6" stroke-linecap="round" d="M50 92 L50 22 M50 62 L22 40 M50 62 L78 40 M50 70 L30 68 M50 70 L70 68"></path>
+  </symbol>
+  <!-- Juletre og stjerne til julevelkomsten -->
+  <symbol id="juletre" viewBox="0 0 100 130">
+    <rect x="44" y="110" width="12" height="18" fill="#5b3a1e"/>
+    <polygon points="50,8 78,48 64,48 88,80 70,80 96,114 4,114 30,80 12,80 36,48 22,48" fill="#0f5132"/>
+    <polygon points="50,8 78,48 64,48 88,80 70,80 96,114 50,114" fill="#0b3f27"/>
+    <path d="M28 46 Q50 56 72 44 M20 78 Q50 92 82 76 M12 110 Q50 122 90 108" stroke="#ffcc00" stroke-width="2" fill="none" stroke-dasharray="3 3"/>
+    <path d="M36 48 Q42 44 50 47 Q58 44 64 48" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M30 80 Q40 75 50 79 Q60 75 70 80" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M10 114 Q30 108 50 112 Q70 108 92 114" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>
+  </symbol>
+  <!-- Flaggermus, gresskar og edderkoppnett til Halloween -->
+  <symbol id="flaggermus" viewBox="0 0 100 50">
+    <path fill="#0b0613" d="M50 18 C47 10 44 9 42 14 C35 4 20 2 2 12 C12 14 16 22 14 30 C22 24 30 28 34 36 C38 30 44 30 46 34 L50 26 L54 34 C56 30 62 30 66 36 C70 28 78 24 86 30 C84 22 88 14 98 12 C80 2 65 4 58 14 C56 9 53 10 50 18 Z"/>
+  </symbol>
+  <symbol id="gresskar" viewBox="0 0 120 110">
+    <path d="M58 22 Q56 8 66 2 L70 6 Q64 12 66 22 Z" fill="#3f6212"/>
+    <ellipse cx="60" cy="64" rx="56" ry="42" fill="#ea580c"/>
+    <ellipse cx="40" cy="64" rx="22" ry="41" fill="#f97316"/>
+    <ellipse cx="80" cy="64" rx="22" ry="41" fill="#f97316"/>
+    <ellipse cx="60" cy="64" rx="18" ry="42" fill="#fb923c"/>
+    <g class="glow" fill="#ffdd55">
+      <polygon points="30,52 46,52 38,38"/>
+      <polygon points="74,52 90,52 82,38"/>
+      <polygon points="55,62 65,62 60,54"/>
+      <path d="M24 72 L34 80 L42 72 L50 82 L60 72 L70 82 L78 72 L86 80 L96 72 Q90 96 60 96 Q30 96 24 72 Z"/>
+    </g>
+  </symbol>
+  <symbol id="nett" viewBox="0 0 160 160">
+    <g stroke="rgba(230,225,255,0.8)" stroke-width="1.4" fill="none">
+      <path d="M0 0 L160 0 M0 0 L150 60 M0 0 L110 110 M0 0 L60 150 M0 0 L0 160"/>
+      <path d="M30 0 Q27 12 28 11 Q20 20 21 21 Q12 27 11 28 Q12 28 0 30"/>
+      <path d="M65 0 Q58 25 60 24 Q44 44 46 46 Q25 58 24 60 Q25 60 0 65"/>
+      <path d="M105 0 Q96 40 99 39 Q72 72 75 75 Q40 96 39 99 Q40 98 0 105"/>
+    </g>
+  </symbol>
+  <symbol id="edderkopp" viewBox="0 0 40 40">
+    <g stroke="#0b0613" stroke-width="2.4" fill="none" stroke-linecap="round">
+      <path d="M14 20 Q6 14 2 18 M14 23 Q5 22 2 27 M15 26 Q8 30 6 36 M16 27 Q12 34 12 39"/>
+      <path d="M26 20 Q34 14 38 18 M26 23 Q35 22 38 27 M25 26 Q32 30 34 36 M24 27 Q28 34 28 39"/>
+    </g>
+    <ellipse cx="20" cy="24" rx="7" ry="8" fill="#0b0613"/>
+    <circle cx="20" cy="15" r="4.5" fill="#0b0613"/>
+    <circle cx="18.3" cy="14.5" r="1.1" fill="#f97316"/><circle cx="21.7" cy="14.5" r="1.1" fill="#f97316"/>
+  </symbol>
+  <symbol id="julestjerne" viewBox="0 0 100 100">
+    <polygon fill="#ffd76a" stroke="#ffb400" stroke-width="3" points="50,4 61,37 96,37 68,58 78,92 50,72 22,92 32,58 4,37 39,37"/>
   </symbol>
 </svg>
 
@@ -552,6 +933,160 @@
     </div>
     <div class="intro-logos">
       <img class="logo-hasle" src="https://cdn-bloc.no/background/200000195/7987/2026/4/23/hl_logo.png" alt="Hasle/Løren logo">
+      <img class="logo-oslo" src="https://oslobyleksikon.no/images/thumb/2/28/Oslo-logo-sort-RGB.jpg/800px-Oslo-logo-sort-RGB.jpg?20191008125845" alt="Oslo kommune logo">
+    </div>
+  </div>
+
+  <!-- SLIDE (1. desember – 6. januar): Julevelkomst - erstatter vanlig velkomst i juleperioden -->
+  <div class="slide" id="slideJul">
+    <div class="jul-aurora"></div>
+    <div class="jul-stars"></div>
+    <div class="jul-garland">
+      <svg viewBox="0 0 1600 110" preserveAspectRatio="none"></svg>
+    </div>
+
+    <div class="corner-clock">
+      <div class="t" data-klokke>–</div>
+      <div class="d" data-dato>–</div>
+    </div>
+
+    <div class="jul-countdown">
+      <div class="n" data-jul-dager>–</div>
+      <div class="l" data-jul-tekst>dager til julaften</div>
+    </div>
+
+    <svg class="jul-tree left2" viewBox="0 0 100 130" aria-hidden="true"><use href="#juletre"/></svg>
+    <svg class="jul-tree right2" viewBox="0 0 100 130" aria-hidden="true"><use href="#juletre"/></svg>
+    <svg class="jul-tree left" viewBox="0 -14 100 144" aria-hidden="true">
+      <use href="#juletre"/>
+      <use href="#julestjerne" x="38" y="-12" width="24" height="24"/>
+      <circle class="jul-blink" cx="40" cy="60" r="4" fill="#e11d48" style="color:#e11d48"/>
+      <circle class="jul-blink" cx="62" cy="66" r="4" fill="#facc15" style="color:#facc15"/>
+      <circle class="jul-blink" cx="32" cy="96" r="4.5" fill="#38bdf8" style="color:#38bdf8"/>
+      <circle class="jul-blink" cx="56" cy="100" r="4.5" fill="#e11d48" style="color:#e11d48"/>
+      <circle class="jul-blink" cx="76" cy="96" r="4" fill="#facc15" style="color:#facc15"/>
+      <circle class="jul-blink" cx="50" cy="34" r="3.5" fill="#38bdf8" style="color:#38bdf8"/>
+    </svg>
+    <svg class="jul-tree right" viewBox="0 -14 100 144" aria-hidden="true">
+      <use href="#juletre"/>
+      <use href="#julestjerne" x="38" y="-12" width="24" height="24"/>
+      <circle class="jul-blink" cx="44" cy="62" r="4" fill="#facc15" style="color:#facc15"/>
+      <circle class="jul-blink" cx="64" cy="58" r="4" fill="#e11d48" style="color:#e11d48"/>
+      <circle class="jul-blink" cx="28" cy="100" r="4.5" fill="#e11d48" style="color:#e11d48"/>
+      <circle class="jul-blink" cx="52" cy="96" r="4.5" fill="#38bdf8" style="color:#38bdf8"/>
+      <circle class="jul-blink" cx="74" cy="102" r="4" fill="#facc15" style="color:#facc15"/>
+      <circle class="jul-blink" cx="48" cy="36" r="3.5" fill="#e11d48" style="color:#e11d48"/>
+    </svg>
+
+    <svg class="jul-gifts left" viewBox="0 0 120 70" aria-hidden="true">
+      <rect x="4" y="26" width="46" height="42" fill="#b3141c"/><rect x="24" y="26" width="6" height="42" fill="#ffcc00"/><rect x="4" y="42" width="46" height="6" fill="#ffcc00"/>
+      <path d="M27 26 q-12 -14 -16 -4 q4 6 16 4 q12 2 16 -4 q-4 -10 -16 4" fill="#ffcc00"/>
+      <rect x="54" y="38" width="36" height="30" fill="#1d4ed8"/><rect x="69" y="38" width="6" height="30" fill="#fff"/><rect x="54" y="50" width="36" height="5" fill="#fff"/>
+      <rect x="92" y="46" width="26" height="22" fill="#15803d"/><rect x="102" y="46" width="5" height="22" fill="#e11d48"/>
+    </svg>
+    <svg class="jul-gifts right" viewBox="0 0 120 70" aria-hidden="true">
+      <rect x="4" y="30" width="40" height="38" fill="#15803d"/><rect x="21" y="30" width="6" height="38" fill="#fff"/><rect x="4" y="44" width="40" height="6" fill="#fff"/>
+      <rect x="48" y="22" width="44" height="46" fill="#e11d48"/><rect x="67" y="22" width="6" height="46" fill="#ffcc00"/><rect x="48" y="40" width="44" height="6" fill="#ffcc00"/>
+      <path d="M70 22 q-12 -14 -16 -4 q4 6 16 4 q12 2 16 -4 q-4 -10 -16 4" fill="#ffcc00"/>
+      <rect x="94" y="48" width="24" height="20" fill="#7c3aed"/><rect x="104" y="48" width="4" height="20" fill="#fff"/>
+    </svg>
+
+    <svg class="jul-nisse" viewBox="0 0 100 100" aria-hidden="true">
+      <path d="M20 52 Q30 6 70 14 Q86 18 90 36 L80 40 Q72 26 62 30 L78 52 Z" fill="#c8102e"/>
+      <circle cx="90" cy="38" r="7" fill="#fff"/>
+      <circle cx="50" cy="66" r="24" fill="#f6c9a4"/>
+      <rect x="18" y="46" width="64" height="12" rx="6" fill="#fff"/>
+      <circle cx="41" cy="64" r="3" fill="#1f2937"/><circle cx="59" cy="64" r="3" fill="#1f2937"/>
+      <circle cx="50" cy="72" r="4" fill="#e88a7a"/>
+      <path d="M26 74 Q50 110 74 74 Q64 84 50 80 Q36 84 26 74 Z" fill="#fff"/>
+    </svg>
+
+    <div class="intro-center">
+      <svg class="jul-star-top" viewBox="0 0 100 100" aria-hidden="true"><use href="#julestjerne"/></svg>
+      <div class="intro-heading">Velkommen til<br>Løren ishall</div>
+      <div class="intro-rule"></div>
+      <div class="jul-greeting"><span class="emoji">🎄</span> God jul! <span class="emoji">🎅</span></div>
+    </div>
+
+    <div class="jul-snowbank">
+      <svg viewBox="0 0 1600 160" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 70 Q120 20 260 60 T520 50 T800 64 T1080 44 T1360 62 T1600 40 V160 H0 Z" fill="#dbe8f5"/>
+        <path d="M0 96 Q160 50 330 88 T660 80 T980 92 T1300 74 T1600 86 V160 H0 Z" fill="#ffffff"/>
+      </svg>
+    </div>
+    <div class="intro-logos">
+      <img class="logo-hasle" src="https://cdn-bloc.no/background/200000195/7987/2026/4/23/hl_logo.png" alt="Hasle/Løren logo">
+      <div class="jul-logo-mid">❄ God jul og godt nytt år ❄</div>
+      <img class="logo-oslo" src="https://oslobyleksikon.no/images/thumb/2/28/Oslo-logo-sort-RGB.jpg/800px-Oslo-logo-sort-RGB.jpg?20191008125845" alt="Oslo kommune logo">
+    </div>
+
+    <div class="jul-snow"></div>
+  </div>
+
+  <!-- SLIDE (25. – 31. oktober): Halloween-velkomst - erstatter vanlig velkomst den siste uka før Halloween -->
+  <div class="slide" id="slideHalloween">
+    <div class="hw-stars"></div>
+    <div class="hw-moon"></div>
+
+    <div class="hw-bat" style="top:6vw; animation-duration:14s; animation-delay:-2s"><svg viewBox="0 0 100 50"><use href="#flaggermus"/></svg></div>
+    <div class="hw-bat" style="top:11vw; width:2.8vw; animation-duration:18s; animation-delay:-9s"><svg viewBox="0 0 100 50"><use href="#flaggermus"/></svg></div>
+    <div class="hw-bat" style="top:3vw; width:2.2vw; animation-duration:11s; animation-delay:-5s"><svg viewBox="0 0 100 50"><use href="#flaggermus"/></svg></div>
+    <div class="hw-bat" style="top:15vw; width:3.2vw; animation-duration:21s; animation-delay:-14s"><svg viewBox="0 0 100 50"><use href="#flaggermus"/></svg></div>
+
+    <svg class="hw-web left" viewBox="0 0 160 160" aria-hidden="true"><use href="#nett"/></svg>
+    <svg class="hw-web right" viewBox="0 0 160 160" aria-hidden="true"><use href="#nett"/></svg>
+    <div class="hw-spider" aria-hidden="true">
+      <svg viewBox="0 0 40 40">
+        <line x1="20" y1="-200" x2="20" y2="14" stroke="rgba(230,225,255,0.7)" stroke-width="0.8"/>
+        <use href="#edderkopp"/>
+      </svg>
+    </div>
+
+    <div class="corner-clock">
+      <div class="t" data-klokke>–</div>
+      <div class="d" data-dato>–</div>
+    </div>
+
+    <div class="hw-countdown">
+      <div class="n" data-hw-dager>–</div>
+      <div class="l" data-hw-tekst>dager til Halloween</div>
+    </div>
+
+    <svg class="hw-ghost" viewBox="0 0 100 120" aria-hidden="true">
+      <path d="M50 4 C22 4 12 28 12 52 L12 110 L24 98 L36 112 L50 98 L64 112 L76 98 L88 110 L88 52 C88 28 78 4 50 4 Z" fill="#f5f3ff"/>
+      <ellipse cx="38" cy="46" rx="6" ry="9" fill="#1e0b3a"/>
+      <ellipse cx="62" cy="46" rx="6" ry="9" fill="#1e0b3a"/>
+      <ellipse cx="50" cy="70" rx="7" ry="9" fill="#1e0b3a"/>
+    </svg>
+
+    <svg class="hw-tree left" viewBox="0 0 200 260" aria-hidden="true">
+      <path fill="#0b0613" d="M92 260 L98 170 C80 150 50 150 28 120 C50 132 70 136 86 140 C70 110 40 96 20 60 C46 84 70 98 92 120 C88 90 70 60 72 20 C84 56 96 84 104 118 C112 90 132 70 150 40 C140 76 124 104 110 140 C130 124 160 116 188 96 C166 124 136 146 112 162 L118 260 Z"/>
+    </svg>
+    <svg class="hw-tree right" viewBox="0 0 200 260" aria-hidden="true">
+      <path fill="#0b0613" d="M92 260 L98 170 C80 150 50 150 28 120 C50 132 70 136 86 140 C70 110 40 96 20 60 C46 84 70 98 92 120 C88 90 70 60 72 20 C84 56 96 84 104 118 C112 90 132 70 150 40 C140 76 124 104 110 140 C130 124 160 116 188 96 C166 124 136 146 112 162 L118 260 Z"/>
+    </svg>
+
+    <div class="intro-center">
+      <div class="intro-heading">Velkommen til<br>Løren ishall</div>
+      <div class="intro-rule"></div>
+      <div class="hw-greeting"><span class="emoji">🎃</span> God Halloween! <span class="emoji">👻</span></div>
+    </div>
+
+    <div class="hw-pumpkin p1"><svg viewBox="0 0 120 110" aria-hidden="true"><use href="#gresskar"/></svg></div>
+    <div class="hw-pumpkin p2"><svg viewBox="0 0 120 110" aria-hidden="true"><use href="#gresskar"/></svg></div>
+    <div class="hw-pumpkin p3"><svg viewBox="0 0 120 110" aria-hidden="true"><use href="#gresskar"/></svg></div>
+    <div class="hw-pumpkin p4"><svg viewBox="0 0 120 110" aria-hidden="true"><use href="#gresskar"/></svg></div>
+
+    <div class="hw-ground">
+      <svg viewBox="0 0 1600 130" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 50 Q200 20 420 44 T860 38 T1280 46 T1600 30 V130 H0 Z" fill="#150724"/>
+        <path d="M0 76 Q260 52 520 70 T1040 66 T1600 64 V130 H0 Z" fill="#0b0613"/>
+      </svg>
+    </div>
+    <div class="hw-fog"></div>
+    <div class="intro-logos">
+      <img class="logo-hasle" src="https://cdn-bloc.no/background/200000195/7987/2026/4/23/hl_logo.png" alt="Hasle/Løren logo">
+      <div class="hw-logo-mid">🕸 Knask eller knep 🕸</div>
       <img class="logo-oslo" src="https://oslobyleksikon.no/images/thumb/2/28/Oslo-logo-sort-RGB.jpg/800px-Oslo-logo-sort-RGB.jpg?20191008125845" alt="Oslo kommune logo">
     </div>
   </div>
@@ -613,6 +1148,12 @@
   <!-- SLIDE 3: Istider (hovedinnhold) -->
   <div class="slide slide-schedule" id="slideSchedule">
     <header>
+      <!-- Halloween-pynt i topplinja (bare synlig når <body> har klassen "halloween") -->
+      <div class="hw-slynge hw-only"><svg viewBox="0 0 1600 40" preserveAspectRatio="none"></svg></div>
+      <svg class="hw-nett hw-only" viewBox="0 0 160 160" aria-hidden="true"><use href="#nett"/></svg>
+      <svg class="hw-nett h hw-only" viewBox="0 0 160 160" aria-hidden="true"><use href="#nett"/></svg>
+      <div class="hw-bat hw-only" style="top:2.2vw; animation-duration:13s; animation-delay:-3s"><svg viewBox="0 0 100 50"><use href="#flaggermus"/></svg></div>
+      <div class="hw-bat hw-only" style="top:3.6vw; width:1.3vw; animation-duration:17s; animation-delay:-10s"><svg viewBox="0 0 100 50"><use href="#flaggermus"/></svg></div>
       <div class="header-side left">
         <div class="clock-block">
           <div class="clock-time" data-klokke>–</div>
@@ -623,6 +1164,8 @@
       <div class="title">
         <div class="kicker">🏒 Løren ishall</div>
         <h1>Istider i dag</h1>
+        <div class="hw-tittel-pynt v hw-only" aria-hidden="true"><svg viewBox="0 0 120 110"><use href="#gresskar"/></svg></div>
+        <div class="hw-tittel-pynt h hw-only" aria-hidden="true"><svg viewBox="0 0 120 110"><use href="#gresskar"/></svg></div>
         <div class="header-leaves host-only" aria-hidden="true">
           <svg class="l1" viewBox="0 0 100 100" style="color:#ea580c"><use href="#blad"></use></svg>
           <svg class="l2" viewBox="0 0 100 100" style="color:#f59e0b"><use href="#blad"></use></svg>
@@ -643,6 +1186,12 @@
           <div class="badge">
             <div class="badge-fill" id="badgeFill"></div>
             <span class="badge-label"><span class="dot"></span>På isen akkurat nå</span>
+            <div class="hw-edderkopp hw-only" aria-hidden="true">
+              <svg viewBox="0 0 40 40">
+                <line x1="20" y1="-60" x2="20" y2="14" stroke="#e9e3ff" stroke-width="1"/>
+                <use href="#edderkopp"/>
+              </svg>
+            </div>
           </div>
           <div class="entries" id="nowEntries"><div class="card-empty">Laster …</div></div>
         </div>
@@ -1133,7 +1682,7 @@ setInterval(refreshData, REFRESH_DATA_MS);
 setInterval(tick, REFRESH_CLOCK_MS);
 
 /* ============ SLIDE-KARUSELL ============ */
-const ALL_SLIDE_IDS = ["slideWelcome", "slideFrigaing", "slideBanner", "slideSchedule", "slideSHS", "slideReminder"];
+const ALL_SLIDE_IDS = ["slideWelcome", "slideJul", "slideHalloween", "slideFrigaing", "slideBanner", "slideSchedule", "slideSHS", "slideReminder"];
 
 // Vanlig rotasjon
 const NORMAL_SLIDES = [
@@ -1168,6 +1717,21 @@ function currentSlideList() {
   if (isSundayFrigaing(now)) {
     base = base.map(item =>
       item.id === "slideWelcome" ? { id: "slideFrigaing", duration: item.duration } : item
+    );
+  }
+
+  // 1. desember – 6. januar: julevelkomst i stedet for vanlig velkomst
+  // (Frigåing over har forrang, siden den har viktig info om isen).
+  if (julAktiv(now)) {
+    base = base.map(item =>
+      item.id === "slideWelcome" ? { id: "slideJul", duration: item.duration } : item
+    );
+  }
+
+  // 25. – 31. oktober: Halloween-velkomst i stedet for vanlig velkomst
+  if (halloweenAktiv(now)) {
+    base = base.map(item =>
+      item.id === "slideWelcome" ? { id: "slideHalloween", duration: item.duration } : item
     );
   }
 
@@ -1215,15 +1779,22 @@ function advanceSlide() {
 advanceSlide();
 
 /* ============ HØSTPYNT ============
-   Løv og "God høstferie!" vises fram til og med HOST_TIL.
-   Etter det ser siden ut som vanlig igjen, uten at noe må endres.
-   Legg til ?host=1 i adressen for å se pynten uansett dato (for testing). */
+   To trinn:
+   - Fram til og med HOST_TIL (høstferien): løv og "God høstferie!".
+   - Deretter resten av oktober, fram til Halloween-uka (t.o.m. 24. oktober):
+     bare litt høstløv, uten "God høstferie!" (klassen "host-lett").
+   Etter det tar Halloween over, og siden ser ellers ut som vanlig.
+   Legg til ?host=1 i adressen for å se full høstpynt uansett dato (for testing). */
 const HOST_TIL = new Date(2026, 9, 4, 23, 59, 59);   // 4. oktober 2026 (måned 9 = oktober)
 const HOST_FARGER = ["#b91c1c", "#dc2626", "#ea580c", "#f97316", "#f59e0b", "#eab308", "#a16207"];
 
-function hostAktiv() {
-  if (/[?&]host=1\b/.test(location.search)) return true;
-  return new Date() <= HOST_TIL;
+// "full" = høstferie med hilsen, "lett" = bare litt løv, null = ingen høstpynt
+function hostModus() {
+  if (/[?&]host=1\b/.test(location.search)) return "full";
+  const n = new Date();
+  if (n <= HOST_TIL) return "full";
+  if (n.getMonth() === 9 && n.getDate() <= 24) return "lett";
+  return null;
 }
 
 function lagFallendeLov(container, antall) {
@@ -1241,18 +1812,162 @@ function lagFallendeLov(container, antall) {
   }
 }
 
+let hostModusNaa;
 function oppdaterHost() {
-  const aktiv = hostAktiv();
-  if (aktiv === document.body.classList.contains("host")) return;
-  document.body.classList.toggle("host", aktiv);
+  const modus = hostModus();
+  if (modus === hostModusNaa) return;
+  hostModusNaa = modus;
+  document.body.classList.toggle("host", modus !== null);
+  document.body.classList.toggle("host-lett", modus === "lett");
   document.querySelectorAll(".leaf-fall").forEach(el => {
     el.innerHTML = "";
-    if (aktiv) lagFallendeLov(el, 16);
+    if (modus) lagFallendeLov(el, modus === "full" ? 16 : 6);
   });
 }
 
 oppdaterHost();
-setInterval(oppdaterHost, 60 * 1000);   // slår seg av av seg selv ved midnatt etter 4. oktober
+setInterval(oppdaterHost, 60 * 1000);   // bytter trinn av seg selv ved midnatt etter 4. og 24. oktober
+
+/* ============ JULEVELKOMST ============
+   Fra og med 1. desember til og med 6. januar står julesiden (#slideJul)
+   i stedet for vanlig velkomst. Gjentas av seg selv hvert år.
+   Legg til ?jul=1 i adressen for å se julesiden uansett dato (for testing). */
+function julAktiv(date) {
+  if (/[?&]jul=1\b/.test(location.search)) return true;
+  const m = date.getMonth(), d = date.getDate();
+  return m === 11 || (m === 0 && d <= 6);   // 11 = desember, 0 = januar
+}
+
+// Lysslynge, stjerner og snø lages én gang ved oppstart
+(function byggJulepynt() {
+  const slide = document.getElementById("slideJul");
+
+  const slynge = slide.querySelector(".jul-garland svg");
+  const farger = ["#ef4444", "#facc15", "#22c55e", "#38bdf8", "#f472b6"];
+  const buer = 8, w = 1600 / buer;
+  let d = "M0 10";
+  for (let i = 0; i < buer; i++) d += ` Q${i * w + w / 2} 90 ${(i + 1) * w} 10`;
+  let html = `<path d="${d}" stroke="#1f3b1f" stroke-width="4" fill="none"/>`;
+  let k = 0;
+  for (let i = 0; i < buer; i++) {
+    for (let j = 1; j <= 5; j++) {
+      const t = j / 6;
+      const x = i * w + t * w;
+      const y = (1 - t) * (1 - t) * 10 + 2 * (1 - t) * t * 90 + t * t * 10;   // punkt på buen
+      const c = farger[k++ % farger.length];
+      html += `<g class="jul-blink" style="color:${c}"><rect x="${x - 4}" y="${y}" width="8" height="7" fill="#374151"/><ellipse cx="${x}" cy="${y + 16}" rx="7" ry="11" fill="${c}"/></g>`;
+    }
+  }
+  slynge.innerHTML = html;
+
+  const stjerner = slide.querySelector(".jul-stars");
+  for (let i = 0; i < 70; i++) {
+    const s = document.createElement("i");
+    const str = 0.1 + Math.random() * 0.18;
+    s.style.width = s.style.height = str + "vw";
+    s.style.left = Math.random() * 100 + "%";
+    s.style.top = Math.random() * 100 + "%";
+    s.style.animationDelay = (Math.random() * 3).toFixed(2) + "s";
+    stjerner.appendChild(s);
+  }
+
+  const sno = slide.querySelector(".jul-snow");
+  for (let i = 0; i < 110; i++) {
+    const f = document.createElement("i");
+    const str = 0.2 + Math.random() * 0.6;
+    f.style.width = f.style.height = str + "vw";
+    f.style.left = Math.random() * 100 + "%";
+    f.style.opacity = 0.5 + Math.random() * 0.5;
+    f.style.animationDuration = (7 + Math.random() * 10).toFixed(1) + "s";
+    f.style.animationDelay = (-Math.random() * 15).toFixed(1) + "s";   // negativ = allerede i fart ved oppstart
+    sno.appendChild(f);
+  }
+})();
+
+// Nedtelling: dager til julaften, "Det er julaften!" den 24., og "Godt nytt år" etterpå
+function oppdaterJulNedtelling() {
+  const n = new Date();
+  const nEl = document.querySelector("[data-jul-dager]");
+  const tEl = document.querySelector("[data-jul-tekst]");
+  if (n.getMonth() === 11 && n.getDate() < 24) {
+    const iDag = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+    const dager = Math.round((new Date(n.getFullYear(), 11, 24) - iDag) / 86400000);
+    nEl.textContent = dager;
+    tEl.textContent = dager === 1 ? "dag til julaften" : "dager til julaften";
+  } else if (n.getMonth() === 11 && n.getDate() === 24) {
+    nEl.textContent = "🎁";
+    tEl.textContent = "Det er julaften!";
+  } else {
+    nEl.textContent = "🎆";
+    tEl.textContent = "Godt nytt år!";
+  }
+}
+
+oppdaterJulNedtelling();
+setInterval(oppdaterJulNedtelling, 60 * 1000);
+
+/* ============ HALLOWEEN ============
+   Den siste uka før Halloween (25. – 31. oktober) står Halloween-siden
+   (#slideHalloween) i stedet for vanlig velkomst, og istid-siden får
+   Halloween-pynt (body.halloween). Gjentas av seg selv hvert år.
+   Legg til ?halloween=1 i adressen for å se det uansett dato (for testing). */
+function halloweenAktiv(date) {
+  if (/[?&]halloween=1\b/.test(location.search)) return true;
+  return date.getMonth() === 9 && date.getDate() >= 25;   // 9 = oktober
+}
+
+// Lysslynge i topplinja og stjerner på velkomstsiden lages én gang ved oppstart
+(function byggHalloweenPynt() {
+  const slynge = document.querySelector(".hw-slynge svg");
+  const farger = ["#f97316", "#a855f7", "#facc15", "#22c55e"];
+  const buer = 14, w = 1600 / buer;
+  let d = "M0 4";
+  for (let i = 0; i < buer; i++) d += ` Q${i * w + w / 2} 26 ${(i + 1) * w} 4`;
+  let html = `<path d="${d}" stroke="#000" stroke-width="2" fill="none"/>`;
+  let k = 0;
+  for (let i = 0; i < buer; i++) {
+    for (let j = 1; j <= 4; j++) {
+      const t = j / 5;
+      const x = i * w + t * w;
+      const y = (1 - t) * (1 - t) * 4 + 2 * (1 - t) * t * 26 + t * t * 4;   // punkt på buen
+      const c = farger[k++ % farger.length];
+      html += `<ellipse class="hw-pære" style="color:${c}" cx="${x}" cy="${y + 6}" rx="3.2" ry="5.5" fill="${c}"/>`;
+    }
+  }
+  slynge.innerHTML = html;
+
+  const stjerner = document.querySelector("#slideHalloween .hw-stars");
+  for (let i = 0; i < 60; i++) {
+    const s = document.createElement("i");
+    const str = 0.1 + Math.random() * 0.16;
+    s.style.width = s.style.height = str + "vw";
+    s.style.left = Math.random() * 100 + "%";
+    s.style.top = Math.random() * 100 + "%";
+    s.style.animationDelay = (Math.random() * 3).toFixed(2) + "s";
+    stjerner.appendChild(s);
+  }
+})();
+
+// Slår Halloween-pynten på istid-siden av og på, og oppdaterer nedtellingen på velkomstsiden
+function oppdaterHalloween() {
+  const n = new Date();
+  document.body.classList.toggle("halloween", halloweenAktiv(n));
+
+  const iDag = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+  const dager = Math.round((new Date(n.getFullYear(), 9, 31) - iDag) / 86400000);
+  const nEl = document.querySelector("[data-hw-dager]");
+  const tEl = document.querySelector("[data-hw-tekst]");
+  if (dager > 0) {
+    nEl.textContent = dager;
+    tEl.textContent = dager === 1 ? "dag til Halloween" : "dager til Halloween";
+  } else {
+    nEl.textContent = "🎃";
+    tEl.textContent = "Det er Halloween!";
+  }
+}
+
+oppdaterHalloween();
+setInterval(oppdaterHalloween, 60 * 1000);   // slår seg av av seg selv ved midnatt etter 31. oktober
 </script>
 </body>
 </html>
