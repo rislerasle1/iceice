@@ -838,6 +838,87 @@
 
   body.halloween .card.merknad { border-left-color: #f97316; background: #fff7ed; }
   body.halloween .note-head { background: #1a0b2e; color: #fb923c; }
+
+  /* ============ JULEPYNT PÅ ISTID-SIDEN (1. desember – 6. januar) ============
+     Alt er avgrenset til body.jul (settes av oppdaterJul() ut fra julAktiv()),
+     og pynten ligger bare i topplinja, kantene og kioskstripa, så selve
+     istidene er like lette å lese. */
+  .jul-only { display: none; }
+  body.jul .jul-only { display: block; }
+
+  /* Topplinja: litt dypere blå, polkagris-kant og plass til lysslynge */
+  body.jul #slideSchedule header {
+    position: relative; overflow: hidden;
+    padding-top: 1.9vw;
+    background: linear-gradient(180deg, #0a2d52 0%, var(--deep) 100%);
+    border-bottom: 0;
+  }
+  body.jul #slideSchedule header::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 0.35vw;
+    background: repeating-linear-gradient(135deg, #ffffff 0 0.8vw, var(--red) 0.8vw 1.6vw);
+  }
+  body.jul #slideSchedule .header-side,
+  body.jul #slideSchedule .title { position: relative; z-index: 2; }
+
+  /* Lysslynge langs toppen av topplinja */
+  .jul-slynge { position: absolute; left: 0; right: 0; top: 0; height: 1.9vw; z-index: 3; pointer-events: none; }
+  .jul-slynge svg { width: 100%; height: 100%; display: block; }
+  .jul-pære { animation: julPære 1.8s ease-in-out infinite; }
+  .jul-pære:nth-of-type(3n)   { animation-delay: 0.6s; }
+  .jul-pære:nth-of-type(3n+1) { animation-delay: 1.2s; }
+  @keyframes julPære {
+    0%, 100% { opacity: 1; filter: drop-shadow(0 0 0.4vw currentColor); }
+    50%      { opacity: 0.35; filter: none; }
+  }
+
+  /* Snøfall bare i topplinja */
+  .jul-snø-header { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
+  .jul-snø-header i {
+    position: absolute; top: -10%; border-radius: 50%; background: #fff;
+    animation: julSnøHeader linear infinite;
+  }
+  @keyframes julSnøHeader {
+    0%   { transform: translate(0, 0); opacity: 0; }
+    15%  { opacity: 0.9; }
+    100% { transform: translate(1vw, 7vw); opacity: 0; }
+  }
+
+  /* Juletrær på hver side av tittelen */
+  .jul-tittel-pynt {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 3.6vw; height: 4.4vw; pointer-events: none;
+  }
+  .jul-tittel-pynt.v { right: 100%; margin-right: 1.2vw; }
+  .jul-tittel-pynt.h { left: 100%;  margin-left: 1.2vw; }
+  .jul-tittel-pynt svg { width: 100%; height: 100%; display: block; }
+  .jul-tittel-pynt .jul-pære { animation-duration: 2.2s; }
+  body.jul #slideSchedule .title .kicker { color: #ffd76a; }
+
+  /* Nisselue på "På isen akkurat nå"-merket */
+  body.jul .card.now { position: relative; overflow: visible; }
+  body.jul .card.now .badge { overflow: visible; }
+  .jul-lue {
+    position: absolute; right: 0.6vw; top: -0.9vw; width: 2.8vw; z-index: 3;
+    transform: rotate(14deg); pointer-events: none;
+  }
+
+  body.jul .list-title::before { content: "🎄 "; letter-spacing: 0; }
+
+  /* Kioskstripa: svake snøfnugg i bakgrunnen */
+  body.jul .kiosk-bar { position: relative; }
+  body.jul .kiosk-bar::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.12;
+    background-image:
+      radial-gradient(circle at 20% 30%, #fff 0.12vw, transparent 0.14vw),
+      radial-gradient(circle at 70% 70%, #fff 0.1vw, transparent 0.12vw),
+      radial-gradient(circle at 45% 55%, #fff 0.08vw, transparent 0.1vw);
+    background-size: 3vw 2.1vw, 4.2vw 2.8vw, 2.4vw 1.6vw;
+  }
+  body.jul .kiosk-status, body.jul .kiosk-meta { position: relative; z-index: 1; }
+
+  /* Merknadsboks i julefarger */
+  body.jul .card.merknad { border-left-color: var(--red); background: #fff8f6; }
+  body.jul .note-head { background: var(--red); color: #fff; }
 </style>
 </head>
 <body>
@@ -1154,6 +1235,9 @@
       <svg class="hw-nett h hw-only" viewBox="0 0 160 160" aria-hidden="true"><use href="#nett"/></svg>
       <div class="hw-bat hw-only" style="top:2.2vw; animation-duration:13s; animation-delay:-3s"><svg viewBox="0 0 100 50"><use href="#flaggermus"/></svg></div>
       <div class="hw-bat hw-only" style="top:3.6vw; width:1.3vw; animation-duration:17s; animation-delay:-10s"><svg viewBox="0 0 100 50"><use href="#flaggermus"/></svg></div>
+      <!-- Julepynt i topplinja (bare synlig når <body> har klassen "jul") -->
+      <div class="jul-slynge jul-only"><svg viewBox="0 0 1600 40" preserveAspectRatio="none"></svg></div>
+      <div class="jul-snø-header jul-only"></div>
       <div class="header-side left">
         <div class="clock-block">
           <div class="clock-time" data-klokke>–</div>
@@ -1166,6 +1250,22 @@
         <h1>Istider i dag</h1>
         <div class="hw-tittel-pynt v hw-only" aria-hidden="true"><svg viewBox="0 0 120 110"><use href="#gresskar"/></svg></div>
         <div class="hw-tittel-pynt h hw-only" aria-hidden="true"><svg viewBox="0 0 120 110"><use href="#gresskar"/></svg></div>
+        <div class="jul-tittel-pynt v jul-only" aria-hidden="true">
+          <svg viewBox="0 -14 100 144">
+            <use href="#juletre"/><use href="#julestjerne" x="36" y="-14" width="28" height="28"/>
+            <circle class="jul-pære" cx="40" cy="62" r="5" fill="#e11d48" style="color:#e11d48"/>
+            <circle class="jul-pære" cx="62" cy="92" r="5" fill="#facc15" style="color:#facc15"/>
+            <circle class="jul-pære" cx="34" cy="100" r="5" fill="#38bdf8" style="color:#38bdf8"/>
+          </svg>
+        </div>
+        <div class="jul-tittel-pynt h jul-only" aria-hidden="true">
+          <svg viewBox="0 -14 100 144">
+            <use href="#juletre"/><use href="#julestjerne" x="36" y="-14" width="28" height="28"/>
+            <circle class="jul-pære" cx="60" cy="62" r="5" fill="#facc15" style="color:#facc15"/>
+            <circle class="jul-pære" cx="38" cy="92" r="5" fill="#e11d48" style="color:#e11d48"/>
+            <circle class="jul-pære" cx="66" cy="100" r="5" fill="#38bdf8" style="color:#38bdf8"/>
+          </svg>
+        </div>
         <div class="header-leaves host-only" aria-hidden="true">
           <svg class="l1" viewBox="0 0 100 100" style="color:#ea580c"><use href="#blad"></use></svg>
           <svg class="l2" viewBox="0 0 100 100" style="color:#f59e0b"><use href="#blad"></use></svg>
@@ -1192,6 +1292,11 @@
                 <use href="#edderkopp"/>
               </svg>
             </div>
+            <svg class="jul-lue jul-only" viewBox="0 0 100 80" aria-hidden="true">
+              <path d="M8 62 Q24 8 64 10 Q86 12 92 34 L80 38 Q72 24 60 28 L84 62 Z" fill="#c8102e"/>
+              <circle cx="92" cy="36" r="8" fill="#fff"/>
+              <rect x="2" y="56" width="88" height="16" rx="8" fill="#fff"/>
+            </svg>
           </div>
           <div class="entries" id="nowEntries"><div class="card-empty">Laster …</div></div>
         </div>
@@ -1905,6 +2010,46 @@ function oppdaterJulNedtelling() {
 
 oppdaterJulNedtelling();
 setInterval(oppdaterJulNedtelling, 60 * 1000);
+
+// Julepynt på istid-siden: lysslynge og snø i topplinja lages én gang ved oppstart
+(function byggIstidJulepynt() {
+  const svg = document.querySelector(".jul-slynge svg");
+  const farger = ["#ef4444", "#facc15", "#22c55e", "#38bdf8", "#f472b6"];
+  const buer = 14, w = 1600 / buer;
+  let d = "M0 4";
+  for (let i = 0; i < buer; i++) d += ` Q${i * w + w / 2} 26 ${(i + 1) * w} 4`;
+  let html = `<path d="${d}" stroke="#1f3b1f" stroke-width="2" fill="none"/>`;
+  let k = 0;
+  for (let i = 0; i < buer; i++) {
+    for (let j = 1; j <= 4; j++) {
+      const t = j / 5;
+      const x = i * w + t * w;
+      const y = (1 - t) * (1 - t) * 4 + 2 * (1 - t) * t * 26 + t * t * 4;   // punkt på buen
+      const c = farger[k++ % farger.length];
+      html += `<ellipse class="jul-pære" style="color:${c}" cx="${x}" cy="${y + 6}" rx="3.2" ry="5.5" fill="${c}"/>`;
+    }
+  }
+  svg.innerHTML = html;
+
+  const sno = document.querySelector(".jul-snø-header");
+  for (let i = 0; i < 45; i++) {
+    const f = document.createElement("i");
+    const str = 0.15 + Math.random() * 0.3;
+    f.style.width = f.style.height = str + "vw";
+    f.style.left = Math.random() * 100 + "%";
+    f.style.animationDuration = (4 + Math.random() * 5).toFixed(1) + "s";
+    f.style.animationDelay = (-Math.random() * 9).toFixed(1) + "s";   // negativ = allerede i fart ved oppstart
+    sno.appendChild(f);
+  }
+})();
+
+// Slår julepynten på istid-siden av og på ut fra datoen
+function oppdaterJul() {
+  document.body.classList.toggle("jul", julAktiv(new Date()));
+}
+
+oppdaterJul();
+setInterval(oppdaterJul, 60 * 1000);   // slår seg av og på av seg selv ved midnatt
 
 /* ============ HALLOWEEN ============
    Den siste uka før Halloween (25. – 31. oktober) står Halloween-siden
