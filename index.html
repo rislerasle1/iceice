@@ -441,6 +441,7 @@
     font-size: 0.95vw; font-weight: 800; color: var(--text);
     min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
+  .borte-arena { font-weight: 600; color: #4a5a66; }
   .borte-dag {
     flex-shrink: 0; font-size: 0.8vw; font-weight: 900; color: #4a5a66;
     background: #edf0f3; padding: 0.28vw 0.55vw; white-space: nowrap;
@@ -1734,11 +1735,12 @@ function visBortekamper() {
     if (d < fra || d >= til) return;
 
     const lag = lagEtikett(k.borte, k.divisjon);
+    const motstander = (k.hjemme || "").trim();
     const arena = (k.arena || "").trim();
-    const nokkel = lag + "|" + arena;
+    const nokkel = lag + "|" + motstander + "|" + arena;
 
     if (!grupper.has(nokkel)) {
-      grupper.set(nokkel, { lag, arena, forste: d, kamper: [] });
+      grupper.set(nokkel, { lag, motstander, arena, forste: d, kamper: [] });
     }
     const g = grupper.get(nokkel);
     // Én parentes per kamp: "(søn 4/10 kl. 14:00)"
@@ -1756,7 +1758,8 @@ function visBortekamper() {
   liste.innerHTML = vis.map(g => `
     <div class="borte-rad">
       <div class="borte-lag">${g.lag}</div>
-      <div class="borte-sted">${g.arena}</div>
+      <div class="borte-sted">${g.motstander || g.arena}${g.motstander && g.arena
+        ? ` <span class="borte-arena">(${g.arena})</span>` : ""}</div>
       <div class="borte-dag">${g.kamper
         .sort((a, b) => (a.d - b.d) || a.tid.localeCompare(b.tid))
         .map(x => x.tekst).join(" + ")}</div>
