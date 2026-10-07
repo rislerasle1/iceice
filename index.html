@@ -1690,8 +1690,9 @@ function lagEtikett(navn, divisjon) {
   const rest = String(navn || "")
     .replace(KLUBB, " ")
     .replace(/ishockeyklubb|ishockey|hockey|idrettslag|\bil\b|\bihk\b/gi, " ")
-    .replace(/\s+/g, " ").trim();
-  if (rest) return rest;
+    .replace(/\s+/g, " ").trim()
+    .replace(/^[\s\-–—,./]+|[\s\-–—,./]+$/g, "");  // "Hasle-Løren IL - Ishockey" etterlater "-"
+  if (/[a-z0-9æøå]/i.test(rest)) return rest;
   // Ikke noe igjen? Bruk divisjonen: "U15C" -> "U15", "JU14" -> "JU14"
   const d = String(divisjon || "").match(/^(J?U\d+|\d+\.\s*divisjon)/i);
   return d ? d[1].replace(/\s+/g, " ") : (divisjon || "Laget");
