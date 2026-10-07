@@ -256,6 +256,12 @@
     color: var(--text); white-space: pre-line;
   }
   .note-body.tom { color: var(--muted); font-weight: 600; }
+  /* Flere merknader samme dag: én rad per merknad, laget (kolonne D) først */
+  .note-item + .note-item {
+    margin-top: 0.45vw; padding-top: 0.45vw;
+    border-top: 0.1vw dashed #e8dca0;
+  }
+  .note-lag { color: var(--deep); font-weight: 900; }
 
   .badge {
     position: relative; overflow: hidden; flex-shrink: 0;
@@ -1317,9 +1323,9 @@
         </div>
 
         <!-- MERKNADSBOKS
-             Viser merknaden for dagens dato (kolonne G i regnearket) –
-             altså nøyaktig samme tekst som kommer opp på info-siden
-             (neste slide i rotasjonen). Boksen fylles i refreshData()
+             Viser alle merknader for dagens dato (kolonne G i regnearket).
+             Ved flere merknader står laget (kolonne D) foran hver tekst.
+             Boksen fylles i refreshData()
              nederst i scriptet, og skjules når kolonne G er tom.
              Vil du at boksen alltid skal stå der, sett
              SKJUL_MERKNAD_NAAR_TOM = false i scriptet. -->
@@ -1493,8 +1499,11 @@ async function fetchTodaysSchedule() {
 
     if (!inTodaysBlock) continue;
 
-    // plukk opp evt. informasjonstekst i kolonne G – kun den FØRSTE for dagen
-    if (info && infoNotes.length === 0) infoNotes.push(info);
+    // plukk opp ALLE merknader i kolonne G for dagen, sammen med laget i kolonne D
+    // (samme lag + tekst to ganger telles bare én gang)
+    if (info && !infoNotes.some(n => n.tekst === info && n.lag === lag)) {
+      infoNotes.push({ lag, tekst: info });
+    }
 
     // hopp over tomme/ugyldige rader (f.eks. blanke skillelinjer)
     if (!fra && !lag) continue;
@@ -1639,7 +1648,7 @@ async function refreshData() {
   }
   // Merknadsboksen på istid-siden viser kolonne G for dagens dato.
   // (Den egne info-siden er fjernet - merknaden står nå sammen med istidene.)
-  visMerknad(cachedInfoNotes.join("\n\n"));
+  visMerknad(cachedInfoNotes);
 
   await hentBortekamper();
   tick();
@@ -1760,17 +1769,31 @@ function visBortekamper() {
 
 /* ============ MERKNADSBOKS ============
    Boksen på istid-siden er eneste stedet merknaden vises.
+   Alle merknader i kolonne G for dagen vises. Er det flere enn én,
+   står laget fra kolonne D foran: "Lag: tekst".
    Tom kolonne G = ingen merknad; da skjules boksen
    og "Neste ut" får plassen. Sett flagget under til false hvis boksen
    heller skal stå der hele tiden med en nøytral tekst. */
 const SKJUL_MERKNAD_NAAR_TOM = true;
 
-function visMerknad(tekst) {
+function visMerknad(merknader) {
   const boks = document.getElementById("merknadBox");
   const felt = document.getElementById("merknadText");
 
-  if (tekst) {
-    felt.textContent = tekst;
+  if (merknader.length) {
+    const flere = merknader.length > 1;
+    felt.replaceChildren(...merknader.map(({ lag, tekst }) => {
+      const rad = document.createElement("div");
+      rad.className = "note-item";
+      if (flere && lag) {
+        const navn = document.createElement("span");
+        navn.className = "note-lag";
+        navn.textContent = lag + ": ";
+        rad.append(navn);
+      }
+      rad.append(tekst);
+      return rad;
+    }));
     felt.className = "note-body";
     boks.style.display = "flex";
   } else if (SKJUL_MERKNAD_NAAR_TOM) {
