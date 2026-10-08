@@ -489,7 +489,7 @@
     padding: 0.35vw 1.1vw; font-size: 0.7vw; font-weight: 700; color: var(--muted);
   }
 
-  /* ============ HØSTPYNT (t.o.m. 24. oktober) ============
+  /* ============ HØSTPYNT (t.o.m. 11. oktober) ============
      Alt under er bare synlig når <body> har klassen "host".
      Klassen settes av hostModus() i scriptet nederst,
      så siden går tilbake til vanlig utseende av seg selv. */
@@ -551,7 +551,7 @@
   .host-greeting .emoji { display: inline-block; animation: bounceEmoji 1.6s ease-in-out infinite; }
   body.host .intro-rule { background: linear-gradient(90deg, #b91c1c, #ea580c, #f59e0b); }
 
-  /* Etter høstferien (5. – 24. oktober): bare litt høstløv, uten "God høstferie!" */
+  /* Etter høstferien (5. – 11. oktober): bare litt høstløv, uten "God høstferie!" */
   body.host-lett .host-greeting { display: none; }
   body.host-lett .leaf-corner { width: 10vw; opacity: 0.85; }
 
@@ -680,7 +680,7 @@
     100% { transform: translate(-1.5vw, 60vw); opacity: 0.7; }
   }
 
-  /* ============ HALLOWEEN (25. – 31. oktober) ============
+  /* ============ HALLOWEEN (12. – 31. oktober) ============
      To deler, begge styrt av halloweenAktiv() i scriptet nederst:
      1) #slideHalloween står i stedet for vanlig velkomst.
      2) body.halloween gir istid-siden pynt i topplinja, kantene og
@@ -1157,7 +1157,7 @@
     <div class="jul-snow"></div>
   </div>
 
-  <!-- SLIDE (25. – 31. oktober): Halloween-velkomst - erstatter vanlig velkomst den siste uka før Halloween -->
+  <!-- SLIDE (12. – 31. oktober): Halloween-velkomst - erstatter vanlig velkomst fram mot Halloween -->
   <div class="slide" id="slideHalloween">
     <div class="hw-stars"></div>
     <div class="hw-moon"></div>
@@ -1917,7 +1917,7 @@ function currentSlideList() {
     );
   }
 
-  // 25. – 31. oktober: Halloween-velkomst i stedet for vanlig velkomst
+  // 12. – 31. oktober: Halloween-velkomst i stedet for vanlig velkomst
   if (halloweenAktiv(now)) {
     base = base.map(item =>
       item.id === "slideWelcome" ? { id: "slideHalloween", duration: item.duration } : item
@@ -1970,7 +1970,7 @@ advanceSlide();
 /* ============ HØSTPYNT ============
    To trinn:
    - Fram til og med HOST_TIL (høstferien): løv og "God høstferie!".
-   - Deretter resten av oktober, fram til Halloween-uka (t.o.m. 24. oktober):
+   - Deretter resten av oktober, fram til Halloween-uka (t.o.m. 11. oktober):
      bare litt høstløv, uten "God høstferie!" (klassen "host-lett").
    Etter det tar Halloween over, og siden ser ellers ut som vanlig.
    Legg til ?host=1 i adressen for å se full høstpynt uansett dato (for testing). */
@@ -1982,7 +1982,7 @@ function hostModus() {
   if (/[?&]host=1\b/.test(location.search)) return "full";
   const n = new Date();
   if (n <= HOST_TIL) return "full";
-  if (n.getMonth() === 9 && n.getDate() <= 24) return "lett";
+  if (n.getMonth() === 9 && n.getDate() <= 11) return "lett";
   return null;
 }
 
@@ -2015,7 +2015,7 @@ function oppdaterHost() {
 }
 
 oppdaterHost();
-setInterval(oppdaterHost, 60 * 1000);   // bytter trinn av seg selv ved midnatt etter 4. og 24. oktober
+setInterval(oppdaterHost, 60 * 1000);   // bytter trinn av seg selv ved midnatt etter 4. og 11. oktober
 
 /* ============ JULEVELKOMST ============
    Fra og med 1. desember til og med 6. januar står julesiden (#slideJul)
@@ -2136,13 +2136,13 @@ oppdaterJul();
 setInterval(oppdaterJul, 60 * 1000);   // slår seg av og på av seg selv ved midnatt
 
 /* ============ HALLOWEEN ============
-   Den siste uka før Halloween (25. – 31. oktober) står Halloween-siden
+   Fra 12. oktober og fram til Halloween (12. – 31. oktober) står Halloween-siden
    (#slideHalloween) i stedet for vanlig velkomst, og istid-siden får
    Halloween-pynt (body.halloween). Gjentas av seg selv hvert år.
    Legg til ?halloween=1 i adressen for å se det uansett dato (for testing). */
 function halloweenAktiv(date) {
   if (/[?&]halloween=1\b/.test(location.search)) return true;
-  return date.getMonth() === 9 && date.getDate() >= 25;   // 9 = oktober
+  return date.getMonth() === 9 && date.getDate() >= 12;   // 9 = oktober
 }
 
 // Lysslynge i topplinja og stjerner på velkomstsiden lages én gang ved oppstart
