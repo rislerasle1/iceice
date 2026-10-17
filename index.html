@@ -1875,8 +1875,8 @@ const ALL_SLIDE_IDS = ["slideWelcome", "slideJul", "slideHalloween", "slideFriga
 
 // Vanlig rotasjon
 const NORMAL_SLIDES = [
-  { id: "slideWelcome", duration: 3000 },
-  { id: "slideSchedule", duration: 10000 },
+  { id: "slideWelcome", duration: 2000 },
+  { id: "slideSchedule", duration: 15000 },
 ];
 
 // Torsdager 17:00-18:00: egen leken rotasjon for SHS
@@ -1930,7 +1930,7 @@ function currentSlideList() {
   base.forEach(item => {
     withBanner.push(item);
     if (item.id === "slideSchedule") {
-      withBanner.push({ id: "slideBanner", duration: 4000 });
+      withBanner.push({ id: "slideBanner", duration: 3000 });
     }
   });
 
