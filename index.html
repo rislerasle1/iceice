@@ -1767,6 +1767,7 @@ async function fetchTodaysSchedule() {
   let inTodaysBlock = false;
   const slots = [];
   const infoNotes = [];
+  let forrigeOkt = null;   // siste økt med klokkeslett, for merknader på linjen under
 
   for (const row of rows) {
     const colA = (row[0] || "").trim();
@@ -1791,7 +1792,7 @@ async function fetchTodaysSchedule() {
     // plukk opp ALLE merknader i kolonne G for dagen, sammen med laget i kolonne D
     // (samme lag + tekst to ganger telles bare én gang)
     if (info && !infoNotes.some(n => n.tekst === info && n.lag === lag)) {
-      infoNotes.push({ lag, tekst: info });
+      infoNotes.push({ lag, tekst: info, gjelder: merknadGjelder(fra, lag, forrigeOkt) });
     }
 
     // hopp over tomme/ugyldige rader (f.eks. blanke skillelinjer)
@@ -1801,6 +1802,7 @@ async function fetchTodaysSchedule() {
     const endMin = toMinutes(til);
     if (startMin === null) continue; // rad uten gyldig starttid -> ignorer trygt
 
+    forrigeOkt = { from: fra, team: lag };
     slots.push({
       from: fra,
       to: til || "",
@@ -2061,26 +2063,38 @@ function visBortekamper() {
 
 /* ============ MERKNADSBOKS ============
    Boksen på istid-siden er eneste stedet merknaden vises.
-   Alle merknader i kolonne G for dagen vises. Er det flere enn én,
-   står laget fra kolonne D foran: "Lag: tekst".
+   Alle merknader i kolonne G for dagen vises, hver med en kort
+   henvisning til økten den gjelder foran: "18:30 U20 kamp mot Furuset: tekst".
+   Står merknaden på en linje uten klokkeslett (f.eks. "mot Furuset"),
+   hører den til økten over.
    Tom kolonne G = ingen merknad; da skjules boksen
    og "Neste ut" får plassen. Sett flagget under til false hvis boksen
    heller skal stå der hele tiden med en nøytral tekst. */
 const SKJUL_MERKNAD_NAAR_TOM = true;
+
+/* Hvilken økt merknaden gjelder, som kort tekst: "18:30 Hasle Løren U20 kamp mot Furuset".
+   fra/lag er raden merknaden står på; forrige er siste økt med klokkeslett over den. */
+function merknadGjelder(fra, lag, forrige) {
+  if (fra) return [fra, lag].filter(Boolean).join(" ");
+  if (!forrige) return lag;
+  const navn = !lag ? forrige.team
+    : /^mot\b/i.test(lag) ? forrige.team + " " + lag.replace(/^Mot\b/, "mot")
+    : lag;
+  return [forrige.from, navn].filter(Boolean).join(" ");
+}
 
 function visMerknad(merknader) {
   const boks = document.getElementById("merknadBox");
   const felt = document.getElementById("merknadText");
 
   if (merknader.length) {
-    const flere = merknader.length > 1;
-    felt.replaceChildren(...merknader.map(({ lag, tekst }) => {
+    felt.replaceChildren(...merknader.map(({ tekst, gjelder }) => {
       const rad = document.createElement("div");
       rad.className = "note-item";
-      if (flere && lag) {
+      if (gjelder) {
         const navn = document.createElement("span");
         navn.className = "note-lag";
-        navn.textContent = lag + ": ";
+        navn.textContent = gjelder + ": ";
         rad.append(navn);
       }
       rad.append(tekst);

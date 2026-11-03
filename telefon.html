@@ -430,6 +430,7 @@ async function fetchTodaysSchedule() {
   let inTodaysBlock = false;
   const slots = [];
   const infoNotes = [];
+  let forrigeOkt = null;   // siste økt med klokkeslett, for merknader på linjen under
 
   for (const row of rows) {
     const colA = (row[0] || "").trim();
@@ -450,7 +451,7 @@ async function fetchTodaysSchedule() {
     if (!inTodaysBlock) continue;
 
     if (info && !infoNotes.some(n => n.tekst === info && n.lag === lag)) {
-      infoNotes.push({ lag, tekst: info });
+      infoNotes.push({ lag, tekst: info, gjelder: merknadGjelder(fra, lag, forrigeOkt) });
     }
     if (!fra && !lag) continue;
 
@@ -458,6 +459,7 @@ async function fetchTodaysSchedule() {
     const endMin = toMinutes(til);
     if (startMin === null) continue;
 
+    forrigeOkt = { from: fra, team: lag };
     slots.push({
       from: fra,
       to: til || "",
@@ -674,19 +676,27 @@ function visBortekamper() {
   boks.style.display = "flex";
 }
 
-/* ============ MERKNAD ============ */
+/* ============ MERKNAD (samme regler som index.html) ============ */
+function merknadGjelder(fra, lag, forrige) {
+  if (fra) return [fra, lag].filter(Boolean).join(" ");
+  if (!forrige) return lag;
+  const navn = !lag ? forrige.team
+    : /^mot\b/i.test(lag) ? forrige.team + " " + lag.replace(/^Mot\b/, "mot")
+    : lag;
+  return [forrige.from, navn].filter(Boolean).join(" ");
+}
+
 function visMerknad(merknader) {
   const boks = document.getElementById("merknadBox");
   const felt = document.getElementById("merknadText");
   if (!merknader.length) { boks.style.display = "none"; return; }
-  const flere = merknader.length > 1;
-  felt.replaceChildren(...merknader.map(({ lag, tekst }) => {
+  felt.replaceChildren(...merknader.map(({ tekst, gjelder }) => {
     const rad = document.createElement("div");
     rad.className = "note-item";
-    if (flere && lag) {
+    if (gjelder) {
       const navn = document.createElement("span");
       navn.className = "note-lag";
-      navn.textContent = lag + ": ";
+      navn.textContent = gjelder + ": ";
       rad.append(navn);
     }
     rad.append(tekst);
