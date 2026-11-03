@@ -965,6 +965,161 @@
   /* Merknadsboks i julefarger */
   body.jul .card.merknad { border-left-color: var(--red); background: #fff8f6; }
   body.jul .note-head { background: var(--red); color: #fff; }
+  /* ============ INFOSIDE: ISTIDER PÅ TELEFONEN ============
+     Står i stedet for banneret: hele første uken, deretter annenhver dag.
+     Styres av TELEFON_FRA i scriptet nederst. */
+  #slideTelefon { background: #ffffff; }
+  #slideTelefon::before {
+    content: ""; position: absolute; left: 0; right: 0; top: 0;
+    height: 0.8vw; background: var(--deep);
+    border-bottom: 0.25vw solid var(--red);
+  }
+  .tlf-wrap {
+    flex: 1; min-height: 0;
+    display: grid; grid-template-columns: 24vw 1fr 22vw;
+    align-items: center; gap: 3.2vw;
+    padding: 4.4vw 4vw 2.6vw;
+  }
+
+  /* --- Telefon-illustrasjon --- */
+  .tlf-phone-col { display: flex; justify-content: center; position: relative; }
+  .tlf-phone {
+    position: relative;
+    width: 21vw; height: 43vw;
+    background: #12212e; border-radius: 3vw;
+    padding: 0.9vw;
+    box-shadow: 0 1.6vw 3vw rgba(13,59,102,0.28), inset 0 0 0 0.18vw #33475b;
+    transform: rotate(-4deg);
+  }
+  .tlf-phone::before {   /* kamera-hakk */
+    content: ""; position: absolute; top: 1.5vw; left: 50%;
+    width: 5.6vw; height: 1.2vw; margin-left: -2.8vw;
+    background: #12212e; border-radius: 0.6vw; z-index: 3;
+  }
+  .tlf-screen {
+    width: 100%; height: 100%; overflow: hidden;
+    background: var(--ice); border-radius: 2.2vw;
+    display: flex; flex-direction: column;
+  }
+  .ps-header {
+    flex-shrink: 0;
+    display: flex; align-items: flex-end; justify-content: space-between;
+    padding: 2.6vw 1vw 0.7vw;
+    background: var(--deep); border-bottom: 0.18vw solid var(--red);
+  }
+  .ps-clock { font-size: 1.1vw; font-weight: 900; color: #fff; line-height: 1; font-variant-numeric: tabular-nums; }
+  .ps-date { font-size: 0.45vw; font-weight: 600; color: #9dc0dd; margin-top: 0.15vw; text-transform: capitalize; }
+  .ps-title { text-align: right; }
+  .ps-title .k { font-size: 0.42vw; font-weight: 800; letter-spacing: 0.2em; color: #7fb0dc; text-transform: uppercase; }
+  .ps-title .h { font-size: 1vw; font-weight: 900; color: #fff; }
+  .ps-badge {
+    padding: 0.4vw 0.8vw;
+    font-size: 0.48vw; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase;
+    color: #fff; background: var(--deep);
+  }
+  .ps-badge.now { background: var(--green); }
+  .ps-entry {
+    display: flex; align-items: center; gap: 0.5vw;
+    padding: 0.55vw 0.8vw; background: #fff;
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .ps-time {
+    background: #e7eff7; color: var(--deep);
+    font-size: 0.55vw; font-weight: 900; padding: 0.25vw 0.35vw; white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+  .ps-badge.now + .ps-entry .ps-time { background: var(--green); color: #fff; }
+  .ps-team { flex: 1; font-size: 0.72vw; font-weight: 800; }
+  .ps-lock {
+    background: #eef4f9; border: 1px solid var(--line);
+    font-size: 0.65vw; font-weight: 900; color: var(--deep); padding: 0.1vw 0.4vw; text-align: center;
+  }
+  .ps-lock small { display: block; font-size: 0.32vw; letter-spacing: 0.08em; color: var(--muted); }
+  .ps-list-title {
+    margin-top: 0.25vw;
+    padding: 0.4vw 0.8vw; background: #eef4f9; border-bottom: 1px solid var(--line);
+    font-size: 0.48vw; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase; color: var(--deep);
+  }
+  .ps-slot {
+    display: flex; align-items: center; gap: 0.5vw;
+    padding: 0.38vw 0.8vw; background: #fff;
+    border-bottom: 1px solid var(--line-soft);
+    border-left: 0.2vw solid transparent;
+  }
+  .ps-slot .ps-time { width: 4.3vw; flex-shrink: 0; text-align: center; }
+  .ps-slot.done { opacity: 0.45; }
+  .ps-slot.active { border-left-color: var(--green); background: #f1faf5; }
+  .ps-slot.active .ps-time { background: var(--green); color: #fff; }
+  .ps-slot.upcoming { border-left-color: var(--deep); }
+  .ps-slot.upcoming .ps-time { background: var(--deep); color: #fff; }
+  .ps-slot .ps-team { font-size: 0.62vw; }
+  .ps-slot .ps-team small { display: block; font-size: 0.42vw; font-weight: 600; color: var(--muted); }
+  .ps-kiosk {
+    margin-top: auto; padding: 0.6vw 0.8vw 1vw;
+    background: var(--green); color: #fff; font-size: 0.6vw; font-weight: 900;
+  }
+
+  /* --- Midtkolonnen: overskrift og fremgangsmåte --- */
+  .tlf-kicker {
+    font-size: 1vw; font-weight: 800; letter-spacing: 0.22em;
+    text-transform: uppercase; color: var(--red);
+  }
+  .tlf-heading {
+    font-size: 4vw; font-weight: 900; color: var(--deep);
+    line-height: 1.04; letter-spacing: -0.02em; margin-top: 0.5vw;
+  }
+  .tlf-sub {
+    font-size: 1.35vw; font-weight: 700; color: #4a6a86; margin-top: 0.9vw; line-height: 1.35;
+  }
+  .tlf-steps { margin-top: 2vw; display: flex; flex-direction: column; gap: 1.1vw; }
+  .tlf-step { display: grid; grid-template-columns: 3vw 1fr; gap: 1.1vw; align-items: start; }
+  .tlf-num {
+    width: 3vw; height: 3vw; border-radius: 50%;
+    background: var(--deep); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5vw; font-weight: 900;
+  }
+  .tlf-step h3 { font-size: 1.5vw; font-weight: 900; color: var(--text); line-height: 1.2; padding-top: 0.35vw; }
+  .tlf-step p { font-size: 1.05vw; font-weight: 600; color: #4a5a66; margin-top: 0.3vw; line-height: 1.4; }
+  .tlf-os { display: flex; gap: 1vw; margin-top: 0.6vw; }
+  .tlf-os > div {
+    flex: 1; background: var(--ice); border: 1px solid var(--line);
+    padding: 0.7vw 0.9vw; font-size: 0.95vw; font-weight: 600; color: #4a5a66; line-height: 1.4;
+  }
+  .tlf-os b.os { display: block; font-size: 0.75vw; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase; color: var(--deep); margin-bottom: 0.2vw; }
+  .tlf-os strong { color: var(--text); font-weight: 900; }
+  .ikon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1.4vw; height: 1.4vw; vertical-align: -0.3vw;
+    background: #fff; border: 1px solid var(--line); border-radius: 0.3vw;
+    color: var(--deep-2);
+  }
+  .ikon svg { width: 0.95vw; height: 0.95vw; }
+
+  /* --- QR-kolonnen --- */
+  .tlf-qr-col { display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .tlf-qr-col .qr {
+    display: block; width: 19vw; height: 19vw;
+    background: #fff; padding: 0.6vw; border-radius: 0.6vw;
+    box-shadow: 0 0 0 0.3vw var(--deep);
+  }
+  .tlf-skann {
+    margin-top: 1.6vw;
+    font-size: 2.2vw; font-weight: 900; color: var(--deep); letter-spacing: -0.01em;
+  }
+  .tlf-url {
+    margin-top: 0.8vw;
+    font-size: 0.95vw; font-weight: 800; color: var(--muted); letter-spacing: 0.02em;
+  }
+
+  .tlf-footer {
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; gap: 1vw;
+    padding: 1.1vw 4vw;
+    background: var(--deep); color: #fff;
+    font-size: 1.2vw; font-weight: 800;
+  }
+  .tlf-footer .gul { color: var(--gold); }
 </style>
 </head>
 <body>
@@ -972,6 +1127,11 @@
 <!-- QR-kode og pynt, kodet inn som ren SVG, så det virker uten nett og uten eksterne tjenester.
      Skal QR-adressen endres, må matrisen genereres på nytt. -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- QR-KODE til https://rislerasle1.github.io/iceice/telefon.html, brukt på infosiden om istider på telefonen. -->
+  <symbol id="qrTelefon" viewBox="0 0 37 37">
+    <rect width="37" height="37" fill="#ffffff"></rect>
+    <path fill="#0d3b66" d="M2 2h7v1h-7zM10 2h1v1h-1zM12 2h1v1h-1zM14 2h1v1h-1zM16 2h1v1h-1zM18 2h1v1h-1zM20 2h1v1h-1zM28 2h7v1h-7zM2 3h1v1h-1zM8 3h1v1h-1zM10 3h3v1h-3zM14 3h1v1h-1zM18 3h2v1h-2zM21 3h1v1h-1zM23 3h2v1h-2zM28 3h1v1h-1zM34 3h1v1h-1zM2 4h1v1h-1zM4 4h3v1h-3zM8 4h1v1h-1zM10 4h4v1h-4zM19 4h2v1h-2zM22 4h3v1h-3zM28 4h1v1h-1zM30 4h3v1h-3zM34 4h1v1h-1zM2 5h1v1h-1zM4 5h3v1h-3zM8 5h1v1h-1zM14 5h1v1h-1zM17 5h1v1h-1zM23 5h1v1h-1zM26 5h1v1h-1zM28 5h1v1h-1zM30 5h3v1h-3zM34 5h1v1h-1zM2 6h1v1h-1zM4 6h3v1h-3zM8 6h1v1h-1zM10 6h1v1h-1zM13 6h1v1h-1zM15 6h3v1h-3zM20 6h1v1h-1zM22 6h2v1h-2zM26 6h1v1h-1zM28 6h1v1h-1zM30 6h3v1h-3zM34 6h1v1h-1zM2 7h1v1h-1zM8 7h1v1h-1zM11 7h2v1h-2zM15 7h2v1h-2zM19 7h2v1h-2zM22 7h5v1h-5zM28 7h1v1h-1zM34 7h1v1h-1zM2 8h7v1h-7zM10 8h1v1h-1zM12 8h1v1h-1zM14 8h1v1h-1zM16 8h1v1h-1zM18 8h1v1h-1zM20 8h1v1h-1zM22 8h1v1h-1zM24 8h1v1h-1zM26 8h1v1h-1zM28 8h7v1h-7zM11 9h2v1h-2zM15 9h1v1h-1zM21 9h2v1h-2zM25 9h1v1h-1zM2 10h1v1h-1zM5 10h7v1h-7zM13 10h2v1h-2zM16 10h4v1h-4zM21 10h1v1h-1zM25 10h3v1h-3zM30 10h1v1h-1zM32 10h3v1h-3zM2 11h1v1h-1zM4 11h1v1h-1zM6 11h2v1h-2zM9 11h3v1h-3zM16 11h2v1h-2zM21 11h1v1h-1zM23 11h3v1h-3zM30 11h3v1h-3zM3 12h1v1h-1zM8 12h1v1h-1zM13 12h2v1h-2zM16 12h5v1h-5zM22 12h2v1h-2zM25 12h4v1h-4zM30 12h5v1h-5zM3 13h1v1h-1zM6 13h2v1h-2zM9 13h1v1h-1zM16 13h1v1h-1zM18 13h2v1h-2zM21 13h2v1h-2zM24 13h2v1h-2zM27 13h1v1h-1zM29 13h1v1h-1zM32 13h2v1h-2zM6 14h1v1h-1zM8 14h1v1h-1zM10 14h7v1h-7zM18 14h3v1h-3zM22 14h1v1h-1zM26 14h1v1h-1zM28 14h2v1h-2zM34 14h1v1h-1zM3 15h1v1h-1zM6 15h1v1h-1zM12 15h2v1h-2zM18 15h1v1h-1zM21 15h1v1h-1zM24 15h2v1h-2zM27 15h1v1h-1zM29 15h1v1h-1zM3 16h2v1h-2zM7 16h5v1h-5zM14 16h1v1h-1zM18 16h1v1h-1zM23 16h2v1h-2zM28 16h5v1h-5zM2 17h1v1h-1zM4 17h1v1h-1zM7 17h1v1h-1zM9 17h1v1h-1zM11 17h1v1h-1zM13 17h5v1h-5zM20 17h2v1h-2zM25 17h1v1h-1zM27 17h1v1h-1zM29 17h4v1h-4zM34 17h1v1h-1zM3 18h1v1h-1zM5 18h4v1h-4zM13 18h2v1h-2zM21 18h2v1h-2zM24 18h1v1h-1zM26 18h6v1h-6zM3 19h1v1h-1zM5 19h2v1h-2zM11 19h3v1h-3zM15 19h1v1h-1zM17 19h1v1h-1zM20 19h2v1h-2zM27 19h2v1h-2zM30 19h1v1h-1zM32 19h1v1h-1zM34 19h1v1h-1zM3 20h1v1h-1zM5 20h1v1h-1zM8 20h3v1h-3zM13 20h2v1h-2zM16 20h3v1h-3zM21 20h1v1h-1zM23 20h1v1h-1zM25 20h1v1h-1zM29 20h1v1h-1zM31 20h2v1h-2zM34 20h1v1h-1zM2 21h1v1h-1zM6 21h2v1h-2zM9 21h3v1h-3zM13 21h1v1h-1zM15 21h1v1h-1zM17 21h6v1h-6zM25 21h4v1h-4zM30 21h3v1h-3zM3 22h3v1h-3zM7 22h2v1h-2zM12 22h5v1h-5zM21 22h1v1h-1zM26 22h1v1h-1zM31 22h1v1h-1zM33 22h1v1h-1zM2 23h2v1h-2zM6 23h1v1h-1zM10 23h4v1h-4zM15 23h2v1h-2zM18 23h3v1h-3zM22 23h1v1h-1zM24 23h2v1h-2zM29 23h2v1h-2zM32 23h1v1h-1zM2 24h1v1h-1zM4 24h1v1h-1zM6 24h1v1h-1zM8 24h1v1h-1zM10 24h1v1h-1zM12 24h4v1h-4zM17 24h4v1h-4zM22 24h1v1h-1zM25 24h2v1h-2zM28 24h1v1h-1zM30 24h1v1h-1zM33 24h2v1h-2zM2 25h1v1h-1zM4 25h4v1h-4zM9 25h1v1h-1zM12 25h1v1h-1zM18 25h3v1h-3zM28 25h2v1h-2zM32 25h2v1h-2zM2 26h2v1h-2zM5 26h2v1h-2zM8 26h2v1h-2zM14 26h1v1h-1zM16 26h3v1h-3zM21 26h1v1h-1zM25 26h7v1h-7zM33 26h2v1h-2zM10 27h1v1h-1zM14 27h1v1h-1zM17 27h1v1h-1zM22 27h2v1h-2zM25 27h2v1h-2zM30 27h1v1h-1zM32 27h2v1h-2zM2 28h7v1h-7zM10 28h4v1h-4zM17 28h2v1h-2zM20 28h4v1h-4zM25 28h2v1h-2zM28 28h1v1h-1zM30 28h1v1h-1zM32 28h1v1h-1zM2 29h1v1h-1zM8 29h1v1h-1zM10 29h2v1h-2zM14 29h2v1h-2zM17 29h2v1h-2zM25 29h2v1h-2zM30 29h5v1h-5zM2 30h1v1h-1zM4 30h3v1h-3zM8 30h1v1h-1zM10 30h1v1h-1zM12 30h1v1h-1zM15 30h3v1h-3zM19 30h2v1h-2zM22 30h1v1h-1zM24 30h7v1h-7zM2 31h1v1h-1zM4 31h3v1h-3zM8 31h1v1h-1zM10 31h1v1h-1zM12 31h1v1h-1zM14 31h1v1h-1zM19 31h1v1h-1zM23 31h2v1h-2zM26 31h2v1h-2zM29 31h1v1h-1zM32 31h3v1h-3zM2 32h1v1h-1zM4 32h3v1h-3zM8 32h1v1h-1zM11 32h2v1h-2zM14 32h3v1h-3zM18 32h2v1h-2zM21 32h3v1h-3zM25 32h1v1h-1zM27 32h1v1h-1zM29 32h2v1h-2zM32 32h3v1h-3zM2 33h1v1h-1zM8 33h1v1h-1zM17 33h2v1h-2zM21 33h1v1h-1zM28 33h3v1h-3zM32 33h3v1h-3zM2 34h7v1h-7zM10 34h1v1h-1zM12 34h1v1h-1zM14 34h2v1h-2zM18 34h2v1h-2zM25 34h2v1h-2zM29 34h2v1h-2z"></path>
+  </symbol>
   <!-- QR-KODE til https://linktr.ee/hlhockey (nyttige linker), brukt på banner-sliden. -->
   <symbol id="qrLinker" viewBox="0 0 29 29">
     <rect width="29" height="29" fill="#ffffff"></rect>
@@ -1275,6 +1435,77 @@
   </div>
 
   <!-- SLIDE: Banner for gratis Skøyte- og Hockeyskole - fast i rotasjonen hver dag, 4 sek etter istider -->
+  <!-- ============ INFOSIDE: ISTIDER PÅ TELEFONEN ============ -->
+  <div class="slide" id="slideTelefon">
+    <div class="corner-clock"><div class="t" data-klokke>–</div><div class="d" data-dato>–</div></div>
+
+    <div class="tlf-wrap">
+      <!-- Telefon med istidene -->
+      <div class="tlf-phone-col">
+        <div class="tlf-phone" aria-hidden="true">
+          <div class="tlf-screen">
+            <div class="ps-header">
+              <div><div class="ps-clock">17:42</div><div class="ps-date">tirsdag 3. november</div></div>
+              <div class="ps-title"><div class="k">Løren ishall</div><div class="h">Istider i dag</div></div>
+            </div>
+            <div class="ps-badge now">● På isen akkurat nå</div>
+            <div class="ps-entry"><div class="ps-time">17:20 – 18:30</div><div class="ps-team">Felles U11/U12</div><div class="ps-lock"><small>GARDEROBE</small>2</div></div>
+            <div class="ps-badge">Neste ut</div>
+            <div class="ps-entry"><div class="ps-time">18:30 – 21:15</div><div class="ps-team">U20 kamp</div><div class="ps-lock"><small>GARDEROBE</small>1</div></div>
+            <div class="ps-list-title">Hele dagens is-tider</div>
+            <div class="ps-slot done"><div class="ps-time">14:00–14:50</div><div class="ps-team">Refstad Skole<small>Garderobe 6</small></div></div>
+            <div class="ps-slot done"><div class="ps-time">16:10–17:10</div><div class="ps-team">MS<small>Garderobe 1</small></div></div>
+            <div class="ps-slot active"><div class="ps-time">17:20–18:30</div><div class="ps-team">Felles U11/U12<small>Garderobe 2, 5 og 6</small></div></div>
+            <div class="ps-slot upcoming"><div class="ps-time">18:30–21:15</div><div class="ps-team">U20 kamp<small>Garderobe 1</small></div></div>
+            <div class="ps-slot"><div class="ps-time">21:25–22:30</div><div class="ps-team">HL2<small>Garderobe 5</small></div></div>
+            <div class="ps-kiosk">Kiosken er åpen – velkommen opp</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fremgangsmåte -->
+      <div>
+        <div class="tlf-kicker">🏒 Nyhet</div>
+        <div class="tlf-heading">Istidene på<br>telefonen din</div>
+        <div class="tlf-sub">Se hvem som er på isen, hvem som er neste ut og garderobene – oppdateres av seg selv.</div>
+
+        <div class="tlf-steps">
+          <div class="tlf-step">
+            <div class="tlf-num">1</div>
+            <div><h3>Skann QR-koden med kameraet</h3><p>Siden åpnes rett i nettleseren. Ingen app å laste ned.</p></div>
+          </div>
+          <div class="tlf-step">
+            <div class="tlf-num">2</div>
+            <div>
+              <h3>Legg den på hjemskjermen</h3>
+              <div class="tlf-os">
+                <div><b class="os">iPhone · Safari</b>
+                  Trykk <span class="ikon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v8h14v-8"/></svg></span> Del, så <strong>«Legg til på Hjem-skjerm»</strong></div>
+                <div><b class="os">Android · Chrome</b>
+                  Trykk <span class="ikon"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="12" cy="19" r="2.2"/></svg></span> menyen, så <strong>«Legg til på startsiden»</strong></div>
+              </div>
+            </div>
+          </div>
+          <div class="tlf-step">
+            <div class="tlf-num">3</div>
+            <div><h3>Ferdig – ett trykk, så har du dagens istider</h3></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QR-kode -->
+      <div class="tlf-qr-col">
+        <svg class="qr" role="img" aria-label="QR-kode til istidene på telefonen"><use href="#qrTelefon"></use></svg>
+        <div class="tlf-skann">Skann meg</div>
+        <div class="tlf-url">rislerasle1.github.io/iceice/telefon.html</div>
+      </div>
+    </div>
+
+    <div class="tlf-footer">
+      Fungerer både stående og liggende <span class="gul">·</span> Alltid dagens istider
+    </div>
+  </div>
+
   <div class="slide slide-banner" id="slideBanner">
     <div class="plakat">
       <img src="https://raw.githubusercontent.com/rislerasle1/iceice/main/banner%20sk%C3%B8yte%20og%20hockeyskolen.png" alt="Gratis Skøyte- og Hockeyskole">
@@ -1871,7 +2102,21 @@ setInterval(refreshData, REFRESH_DATA_MS);
 setInterval(tick, REFRESH_CLOCK_MS);
 
 /* ============ SLIDE-KARUSELL ============ */
-const ALL_SLIDE_IDS = ["slideWelcome", "slideJul", "slideHalloween", "slideFrigaing", "slideBanner", "slideSchedule", "slideSHS", "slideReminder"];
+const ALL_SLIDE_IDS = ["slideWelcome", "slideJul", "slideHalloween", "slideFrigaing", "slideBanner", "slideTelefon", "slideSchedule", "slideSHS", "slideReminder"];
+
+/* Infosiden «Istidene på telefonen din» står i stedet for banneret for
+   Skøyte- og Hockeyskolen: hver dag den første uken fra TELEFON_FRA,
+   deretter annenhver dag (banneret de andre dagene). */
+const TELEFON_FRA = new Date(2026, 10, 3);   // 3. november 2026 (måned 10 = november)
+const TELEFON_VARIGHET = 8000;                // står lenger enn banneret, så folk rekker å skanne
+
+function telefonDag(date) {
+  const iDag = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const dager = Math.round((iDag - TELEFON_FRA) / 86400000);
+  if (dager < 0) return false;
+  if (dager < 7) return true;          // første uken: hver dag
+  return (dager - 7) % 2 === 1;        // deretter: banner 10. nov, infoside 11. nov, osv.
+}
 
 // Vanlig rotasjon
 const NORMAL_SLIDES = [
@@ -1925,12 +2170,16 @@ function currentSlideList() {
   }
 
   // Banneret for gratis Skøyte- og Hockeyskole er fast i rotasjonen hver
-  // dag, uansett hvilken av rotasjonene over som ellers kjører.
+  // dag, uansett hvilken av rotasjonene over som ellers kjører – unntatt
+  // dagene da infosiden om istider på telefonen står der i stedet.
+  const sluttside = telefonDag(now)
+    ? { id: "slideTelefon", duration: TELEFON_VARIGHET }
+    : { id: "slideBanner", duration: 3000 };
   const withBanner = [];
   base.forEach(item => {
     withBanner.push(item);
     if (item.id === "slideSchedule") {
-      withBanner.push({ id: "slideBanner", duration: 3000 });
+      withBanner.push(sluttside);
     }
   });
 
