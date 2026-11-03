@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0d3b66">
+<title>Istider Lørenhallen – i dag</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  /* Telefonversjon av istid-siden i index.html.
+     Samme oppbygning (topplinje, "På isen nå", "Neste ut", merknad,
+     bortekamper, hele dagens liste og kioskstripe), men uten velkomstside,
+     banner og pynt. Stående: alt i én kolonne. Liggende: to kolonner
+     som på storskjermen (kortene til venstre, listen til høyre). */
+  :root {
+    --ice: #f4f8fb;
+    --deep: #0d3b66;
+    --deep-2: #17518c;
+    --red: #c0392b;
+    --green: #157a4c;
+    --green-dark: #0c4f31;
+    --gold: #ffcc00;
+    --text: #12212e;
+    --muted: #7d94a8;
+    --line: #dbe5ee;
+    --line-soft: #edf2f7;
+    --pad: 14px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    min-height: 100vh; min-height: 100dvh;
+    display: flex; flex-direction: column;
+    background: var(--ice);
+    font-family: "Public Sans", system-ui, -apple-system, sans-serif;
+    color: var(--text);
+  }
+
+  /* ---- Topplinje ---- */
+  header {
+    position: sticky; top: 0; z-index: 5;
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 10px var(--pad);
+    padding-top: calc(10px + env(safe-area-inset-top));
+    padding-left: calc(var(--pad) + env(safe-area-inset-left));
+    padding-right: calc(var(--pad) + env(safe-area-inset-right));
+    background: var(--deep);
+    border-bottom: 3px solid var(--red);
+  }
+  .header-side { flex: 1; display: flex; align-items: center; min-width: 0; }
+  .header-side.right { justify-content: flex-end; }
+  .clock-time {
+    font-size: 20px; font-weight: 900; color: #ffffff;
+    letter-spacing: -0.01em; font-variant-numeric: tabular-nums; line-height: 1;
+  }
+  .clock-date {
+    font-size: 11px; font-weight: 600; color: #9dc0dd;
+    margin-top: 3px; text-transform: capitalize; white-space: nowrap;
+  }
+  .title { flex: 0 0 auto; text-align: center; white-space: nowrap; }
+  .title .kicker {
+    font-size: 9px; font-weight: 800; letter-spacing: 0.22em;
+    text-transform: uppercase; color: #7fb0dc;
+  }
+  .title h1 {
+    font-size: 19px; font-weight: 900; color: #ffffff;
+    letter-spacing: -0.01em; margin-top: 2px;
+  }
+  .logo-block img { height: 34px; max-width: 80px; object-fit: contain; display: block; }
+
+  /* ---- Panelene ---- */
+  .main {
+    flex: 1;
+    display: flex; flex-direction: column; gap: 2px;
+    background: var(--line);
+  }
+  .cards { display: flex; flex-direction: column; gap: 2px; }
+
+  .card { background: #ffffff; display: flex; flex-direction: column; }
+
+  .badge {
+    position: relative; overflow: hidden;
+    display: flex; align-items: center;
+    padding: 8px var(--pad);
+    font-size: 11px; font-weight: 900;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: #ffffff; background: var(--deep);
+  }
+  .card.now .badge { background: var(--green); }
+  .badge-fill {
+    position: absolute; left: 0; top: 0; bottom: 0; width: 0%;
+    background: var(--green-dark);
+    transition: width 1s linear;
+  }
+  .badge .badge-label { position: relative; display: inline-flex; align-items: center; gap: 7px; }
+  .card.now .badge .dot {
+    width: 8px; height: 8px; background: white; border-radius: 50%;
+    animation: pulse 1.6s infinite ease-in-out;
+  }
+  @keyframes pulse { 0%,100% { opacity:1; transform:scale(1);} 50% { opacity:0.45; transform:scale(0.8);} }
+
+  .entries > div {
+    display: grid; grid-template-columns: auto 1fr auto;
+    align-items: center; gap: 10px;
+    padding: 9px var(--pad);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .entry-time {
+    background: #e7eff7; color: var(--deep);
+    font-size: 13px; font-weight: 900; line-height: 1.2;
+    padding: 5px 8px; text-align: center;
+    font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .card.now .entry-time { background: var(--green); color: #ffffff; }
+  .entry-team {
+    font-size: 16px; font-weight: 800; line-height: 1.25; color: var(--text);
+    min-width: 0; overflow-wrap: break-word; hyphens: auto;
+  }
+  .entry-locker {
+    background: #eef4f9; border: 1px solid var(--line);
+    padding: 3px 8px; white-space: nowrap;
+  }
+  .entry-locker > span {
+    display: flex; flex-direction: column; align-items: center;
+    font-size: 15px; font-weight: 900; color: var(--deep); line-height: 1.15;
+    font-variant-numeric: tabular-nums;
+  }
+  .entry-locker .label {
+    font-size: 8px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 0.1em; color: var(--muted);
+  }
+  .entries > div.card-empty, .schedule > div.card-empty {
+    display: block; border-bottom: 0;
+    padding: 12px var(--pad);
+    font-size: 14px; font-weight: 700; color: var(--muted);
+  }
+  .progress-label {
+    padding: 7px var(--pad);
+    border-top: 1px solid var(--line-soft);
+    font-size: 12px; font-weight: 800; letter-spacing: 0.04em;
+    color: var(--deep-2); font-variant-numeric: tabular-nums;
+  }
+  .progress-label:empty { display: none; }
+
+  /* Merknad */
+  .card.merknad { background: #fffdf2; border-left: 5px solid var(--gold); }
+  .note-head {
+    padding: 8px var(--pad);
+    background: var(--gold); color: #3d2f00;
+    font-size: 11px; font-weight: 900;
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  .note-body {
+    padding: 10px var(--pad);
+    font-size: 14px; font-weight: 700; line-height: 1.45;
+    color: var(--text); white-space: pre-line;
+  }
+  .note-item + .note-item {
+    margin-top: 7px; padding-top: 7px;
+    border-top: 1px dashed #e8dca0;
+  }
+  .note-lag { color: var(--deep); font-weight: 900; }
+
+  /* Bortekamper */
+  .card.bortekamper .badge { background: #7a8a96; }
+  .borte-rad {
+    display: grid; grid-template-columns: auto 1fr;
+    align-items: center; gap: 4px 10px;
+    padding: 8px var(--pad);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .borte-lag {
+    grid-row: span 2; align-self: start;
+    min-width: 44px; text-align: center;
+    background: #5a6874; color: #ffffff;
+    font-size: 12px; font-weight: 900; letter-spacing: 0.04em;
+    padding: 4px 6px;
+  }
+  .borte-sted { font-size: 14px; font-weight: 800; color: var(--text); min-width: 0; }
+  .borte-arena { font-weight: 600; color: #4a5a66; }
+  .borte-dag { font-size: 12px; font-weight: 800; color: #4a5a66; }
+
+  /* Lenke (erstatter QR-koden fra storskjermen) */
+  .lenke {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 12px var(--pad);
+    color: var(--deep); text-decoration: none;
+  }
+  .lenke .lt { font-size: 14px; font-weight: 800; }
+  .lenke .lu { font-size: 12px; font-weight: 700; color: var(--muted); margin-top: 2px; }
+  .lenke .pil { font-size: 22px; font-weight: 900; color: var(--red); }
+
+  /* Hele dagens liste */
+  .list-panel { background: #ffffff; display: flex; flex-direction: column; }
+  .list-title {
+    padding: 8px var(--pad);
+    background: #eef4f9; border-bottom: 1px solid var(--line);
+    font-size: 11px; font-weight: 900;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--deep);
+  }
+  .slot {
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px var(--pad);
+    border-bottom: 1px solid var(--line-soft);
+    border-left: 4px solid transparent;
+  }
+  .slot.active { border-left-color: var(--green); background: #f1faf5; }
+  .slot.upcoming { border-left-color: var(--deep); background: #f5f9fd; }
+  .slot.ferdig { opacity: 0.5; }
+  .slot-time {
+    min-width: 104px; flex-shrink: 0; text-align: center;
+    background: #e7eff7; color: var(--deep);
+    font-size: 13px; font-weight: 900; line-height: 1.25;
+    padding: 5px 6px; font-variant-numeric: tabular-nums; white-space: nowrap;
+  }
+  .slot.active .slot-time { background: var(--green); color: #ffffff; }
+  .slot.upcoming .slot-time { background: var(--deep); color: #ffffff; }
+  .slot-info { flex: 1; min-width: 0; }
+  .slot-team { font-weight: 800; font-size: 15px; color: var(--text); overflow-wrap: break-word; hyphens: auto; }
+  .slot-locker { font-size: 12px; font-weight: 600; color: var(--muted); }
+  .slot-locker b { color: var(--deep); font-weight: 900; }
+
+  .status-msg {
+    text-align: center; padding: 7px var(--pad);
+    background: #f7fafd; border-top: 1px solid var(--line);
+    font-size: 11px; font-weight: 700; letter-spacing: 0.04em; color: var(--muted);
+  }
+  .status-msg.error { background: var(--red); color: #ffffff; }
+
+  /* ---- Kioskstripe nederst ---- */
+  .kiosk-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 4px 14px;
+    padding: 12px var(--pad);
+    padding-bottom: calc(12px + env(safe-area-inset-bottom));
+    background: var(--deep);
+  }
+  .kiosk-bar.open { background: var(--green); }
+  .kiosk-bar.closed { background: var(--red); }
+  .kiosk-status { font-size: 15px; font-weight: 900; color: #ffffff; }
+  .kiosk-meta {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+    color: rgba(255,255,255,0.72);
+  }
+
+  /* ---- Smale telefoner: tittelen får plassen, logoen skjules ---- */
+  @media (max-width: 360px) {
+    .header-side.right { display: none; }
+    .title { text-align: right; }
+  }
+
+  /* ---- Liggende / bredere skjerm: to kolonner som på storskjermen ---- */
+  @media (orientation: landscape) and (min-width: 560px) {
+    .main {
+      flex-direction: row; align-items: flex-start;
+      padding-left: env(safe-area-inset-left);
+      padding-right: env(safe-area-inset-right);
+    }
+    .cards { width: 46%; flex-shrink: 0; }
+    .list-panel { flex: 1; min-width: 0; align-self: stretch; }
+    /* Lite høyde liggende: topplinja følger ikke med ved scrolling */
+    header { position: static; padding-top: 8px; padding-bottom: 8px; }
+    .entries > div { gap: 8px; }
+    .entry-time { font-size: 12px; padding: 4px 6px; }
+    .entry-team { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-side left">
+    <div>
+      <div class="clock-time" data-klokke>–</div>
+      <div class="clock-date" data-dato>–</div>
+    </div>
+  </div>
+  <div class="title">
+    <div class="kicker">🏒 Løren ishall</div>
+    <h1>Istider i dag</h1>
+  </div>
+  <div class="header-side right">
+    <div class="logo-block">
+      <img src="https://cdn-bloc.no/background/200000195/7987/2026/4/23/hl_logo.png" alt="Lørenhallen logo">
+    </div>
+  </div>
+</header>
+
+<div class="main">
+  <div class="cards">
+    <div class="card now">
+      <div class="badge">
+        <div class="badge-fill" id="badgeFill"></div>
+        <span class="badge-label"><span class="dot"></span>På isen akkurat nå</span>
+      </div>
+      <div class="entries" id="nowEntries"><div class="card-empty">Laster …</div></div>
+    </div>
+
+    <div class="card next">
+      <div class="badge">Neste ut</div>
+      <div class="entries" id="nextEntries"><div class="card-empty">Laster …</div></div>
+      <div class="progress-label" id="nextCountdown"></div>
+    </div>
+
+    <div class="card merknad" id="merknadBox" style="display:none;">
+      <div class="note-head">📢 Merknad</div>
+      <div class="note-body" id="merknadText"></div>
+    </div>
+
+    <div class="card bortekamper" id="borteBoks" style="display:none;">
+      <div class="badge">Kommende bortekamper</div>
+      <div class="borte-liste" id="borteListe"></div>
+    </div>
+
+    <div class="card">
+      <div class="badge">Hele uken istider og påmeldinger</div>
+      <a class="lenke" href="https://linktr.ee/hlhockey" target="_blank" rel="noopener">
+        <div><div class="lt">Nyttige linker</div><div class="lu">linktr.ee/hlhockey</div></div>
+        <div class="pil">→</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="list-panel">
+    <div class="list-title">Hele dagens is-tider</div>
+    <div class="schedule" id="scheduleList"><div class="card-empty">Laster …</div></div>
+    <div class="status-msg" id="statusMsg"></div>
+  </div>
+</div>
+
+<div class="kiosk-bar" id="kioskBar">
+  <div class="kiosk-status" id="kioskStatus">–</div>
+  <div class="kiosk-meta">Kilde: Istider Lørenhallen (Google Regneark) · tinyurl.com/istider &nbsp;v.3.1.2</div>
+</div>
+
+<script>
+/* ============ OPPSETT ============
+   Samme datakilde og regler som index.html (storskjermen).
+   Endres åpningstider eller bortekamp-serier der, bør de endres her også. */
+const CSV_URL = "data/schedule.csv";
+const REFRESH_DATA_MS = 5 * 60 * 1000;
+const REFRESH_CLOCK_MS = 1000;
+
+const NB_WEEKDAYS = ["søn","man","tir","ons","tor","fre","lør"];
+
+const KIOSK_HOURS_WEEKDAY = { open: "17:00", close: "21:00" }; // man–fre
+const KIOSK_HOURS_WEEKEND = { open: "10:00", close: "18:00" }; // lør–søn
+
+/* ============ CSV-PARSER (tåler komma inni anførselstegn) ============ */
+function parseCSV(text) {
+  const rows = [];
+  let row = [], field = "", inQuotes = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQuotes) {
+      if (c === '"') {
+        if (text[i + 1] === '"') { field += '"'; i++; }
+        else inQuotes = false;
+      } else field += c;
+    } else {
+      if (c === '"') inQuotes = true;
+      else if (c === ',') { row.push(field); field = ""; }
+      else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ""; }
+      else if (c === '\r') { /* ignore */ }
+      else field += c;
+    }
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+
+/* ============ Hjelpere ============ */
+function toMinutes(t) {
+  if (!t) return null;
+  const m = t.trim().match(/^(\d{1,2}):(\d{2})/);
+  if (!m) return null;
+  return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+}
+
+function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function matchesDate(cell, date) {
+  if (!cell) return false;
+  const c = cell.trim().toLowerCase();
+  const wd = NB_WEEKDAYS[date.getDay()];
+  const dm = `${date.getDate()}/${date.getMonth() + 1}`;
+  const re = new RegExp(`^${wd}\\.?\\s+${dm}\\b`);
+  return re.test(c);
+}
+
+function isWeekHeader(cell) {
+  return !!cell && /^uke\s+\d+/i.test(cell.trim());
+}
+
+/* ============ Kiosk-åpningstider ============ */
+function kioskHoursFor(date) {
+  const day = date.getDay();
+  return (day === 0 || day === 6) ? KIOSK_HOURS_WEEKEND : KIOSK_HOURS_WEEKDAY;
+}
+
+function kioskStatus(now) {
+  const hours = kioskHoursFor(now);
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  const openMin = toMinutes(hours.open);
+  const closeMin = toMinutes(hours.close);
+  if (nowMin >= openMin && nowMin < closeMin) return { isOpen: true };
+  if (nowMin < openMin) return { isOpen: false, nextOpen: hours.open };
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return { isOpen: false, nextOpen: kioskHoursFor(tomorrow).open };
+}
+
+/* ============ Hent og tolk data for dagens dato ============ */
+async function fetchTodaysSchedule() {
+  const res = await fetch(CSV_URL + "?t=" + Date.now(), { cache: "no-store" });
+  if (!res.ok) throw new Error("Fant ikke istidene (HTTP " + res.status + ").");
+  const text = await res.text();
+  if (/<html/i.test(text.slice(0, 200))) throw new Error("Istidene er ikke tilgjengelige akkurat nå.");
+
+  const rows = parseCSV(text);
+  const now = new Date();
+  let inTodaysBlock = false;
+  const slots = [];
+  const infoNotes = [];
+
+  for (const row of rows) {
+    const colA = (row[0] || "").trim();
+    const fra = (row[1] || "").trim();
+    const til = (row[2] || "").trim();
+    const lag = (row[3] || "").trim();
+    const garderobe = (row[5] || "").trim();
+    const info = (row[6] || "").trim();
+
+    if (isWeekHeader(colA)) { inTodaysBlock = false; continue; }
+
+    if (colA && matchesDate(colA, now)) {
+      inTodaysBlock = true;
+    } else if (colA) {
+      if (inTodaysBlock) break;
+      inTodaysBlock = false;
+    }
+    if (!inTodaysBlock) continue;
+
+    if (info && !infoNotes.some(n => n.tekst === info && n.lag === lag)) {
+      infoNotes.push({ lag, tekst: info });
+    }
+    if (!fra && !lag) continue;
+
+    const startMin = toMinutes(fra);
+    const endMin = toMinutes(til);
+    if (startMin === null) continue;
+
+    slots.push({
+      from: fra,
+      to: til || "",
+      start: startMin,
+      end: endMin === null ? startMin + 1 : endMin,
+      team: lag || "(ukjent lag)",
+      locker: garderobe || "–",
+    });
+  }
+
+  slots.sort((a, b) => a.start - b.start);
+  return { slots, infoNotes };
+}
+
+/* ============ Rendering ============ */
+let cachedSlots = [];
+let cachedInfoNotes = [];
+let lastError = null;
+let lastFetched = null;
+let renderKey = "";
+
+function renderEntries(container, list, emptyMsg) {
+  container.innerHTML = list.length
+    ? list.map(slot => `<div>
+        <div class="entry-time">${esc(slot.from)}${slot.to ? " – " + esc(slot.to) : ""}</div>
+        <div class="entry-team">${esc(slot.team)}</div>
+        <div class="entry-locker"><span><span class="label">Garderobe</span>${esc(slot.locker)}</span></div>
+      </div>`).join("")
+    : `<div class="card-empty">${emptyMsg}</div>`;
+}
+
+function tick() {
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+
+  document.querySelectorAll("[data-klokke]").forEach(e =>
+    e.textContent = pad(now.getHours()) + ":" + pad(now.getMinutes()) + ":" + pad(now.getSeconds()));
+  document.querySelectorAll("[data-dato]").forEach(e =>
+    e.textContent = now.toLocaleDateString("nb-NO", { weekday: "long", day: "numeric", month: "long" }));
+
+  const status = kioskStatus(now);
+  const kioskBarEl = document.getElementById("kioskBar");
+  document.getElementById("kioskStatus").textContent = status.isOpen
+    ? "Kiosken er åpen – velkommen opp"
+    : "Kiosken åpner klokken " + status.nextOpen;
+  kioskBarEl.className = "kiosk-bar " + (status.isOpen ? "open" : "closed");
+
+  const current = cachedSlots.filter(s => nowMin >= s.start && nowMin < s.end);
+
+  const badgeFill = document.getElementById("badgeFill");
+  if (current.length) {
+    const blockStart = Math.min(...current.map(s => s.start));
+    const blockEnd = Math.max(...current.map(s => s.end));
+    const ratio = blockEnd > blockStart
+      ? Math.max(0, Math.min(1, (nowMin - blockStart) / (blockEnd - blockStart)))
+      : 1;
+    badgeFill.style.width = (ratio * 100).toFixed(1) + "%";
+  } else {
+    badgeFill.style.width = "0%";
+  }
+
+  const upcomingStarts = cachedSlots.map(s => s.start).filter(t => t > nowMin);
+  const nextStart = upcomingStarts.length ? Math.min(...upcomingStarts) : null;
+  const next = nextStart === null ? [] : cachedSlots.filter(s => s.start === nextStart);
+
+  document.getElementById("nextCountdown").textContent = next.length
+    ? "Økten starter om " + Math.max(0, nextStart - nowMin) + " min"
+    : "";
+
+  // Listene tegnes bare på nytt når noe faktisk har endret seg,
+  // slik at det ikke hopper når man scroller på telefonen.
+  if (!lastFetched && !lastError) return;   // første henting pågår: la "Laster …" stå
+  const key = nowMin + "|" + cachedSlots.length + "|" + (lastFetched || 0) + "|" + lastError;
+  if (key === renderKey) return;
+  renderKey = key;
+
+  renderEntries(document.getElementById("nowEntries"), current, "Ingen på isen akkurat nå");
+  renderEntries(document.getElementById("nextEntries"), next, "Ingen flere økter i dag");
+
+  const list = document.getElementById("scheduleList");
+  if (!cachedSlots.length) {
+    list.innerHTML = `<div class="card-empty" style="color:#4a6a86;">${lastError ? "Fikk ikke hentet data." : "Ingen økter registrert i dag."}</div>`;
+  } else {
+    list.innerHTML = cachedSlots.map(slot => {
+      let cls = "slot";
+      if (nowMin >= slot.start && nowMin < slot.end) cls += " active";
+      else if (nextStart !== null && slot.start === nextStart) cls += " upcoming";
+      else if (nowMin >= slot.end) cls += " ferdig";
+      return `<div class="${cls}">
+        <div class="slot-time">${esc(slot.from)}${slot.to ? "–" + esc(slot.to) : ""}</div>
+        <div class="slot-info">
+          <div class="slot-team">${esc(slot.team)}</div>
+          <div class="slot-locker">Garderobe <b>${esc(slot.locker)}</b></div>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  const statusEl = document.getElementById("statusMsg");
+  if (lastError) {
+    statusEl.textContent = "⚠ " + lastError;
+    statusEl.className = "status-msg error";
+  } else if (lastFetched) {
+    statusEl.textContent = "Sist oppdatert " + pad(lastFetched.getHours()) + ":" + pad(lastFetched.getMinutes());
+    statusEl.className = "status-msg";
+  }
+}
+
+async function refreshData() {
+  try {
+    const { slots, infoNotes } = await fetchTodaysSchedule();
+    cachedSlots = slots;
+    cachedInfoNotes = infoNotes;
+    lastError = null;
+    lastFetched = new Date();
+  } catch (e) {
+    lastError = e.message || String(e);
+  }
+  visMerknad(cachedInfoNotes);
+  tick();                    // vis istidene med en gang, ikke vent på bortekampene
+  await hentBortekamper();
+}
+
+/* ============ KOMMENDE BORTEKAMPER (samme regler som index.html) ============ */
+const KAMPER_URL = "https://rislerasle1.github.io/resultater/data/kamper.json";
+const BORTE_DAGER = 7;
+const BORTE_MAKS_LINJER = 4;
+const BORTE_SERIER = [
+  /^U14/i,
+  /^U15/i,
+  /^U20/i,
+  /^JU14/i,
+  /^2\.\s*divisjon/i
+];
+const KLUBB = /hasle\s*[-/ ]?\s*l(ø|o)ren/i;
+
+function serienErMed(divisjon) {
+  const d = String(divisjon || "").trim();
+  return BORTE_SERIER.some(m => m.test(d));
+}
+
+function lagEtikett(navn, divisjon) {
+  const rest = String(navn || "")
+    .replace(KLUBB, " ")
+    .replace(/ishockeyklubb|ishockey|hockey|idrettslag|\bil\b|\bihk\b/gi, " ")
+    .replace(/\s+/g, " ").trim()
+    .replace(/^[\s\-–—,./]+|[\s\-–—,./]+$/g, "");
+  if (/[a-z0-9æøå]/i.test(rest)) return rest;
+  const d = String(divisjon || "").match(/^(J?U\d+|\d+\.\s*divisjon)/i);
+  return d ? d[1].replace(/\s+/g, " ") : (divisjon || "Laget");
+}
+
+let cachedBorte = null;
+
+async function hentBortekamper() {
+  try {
+    const res = await fetch(KAMPER_URL + "?t=" + Date.now(), { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+    cachedBorte = Array.isArray(data.kamper) ? data.kamper : [];
+  } catch (e) {
+    // behold forrige sett
+  }
+  visBortekamper();
+}
+
+function visBortekamper() {
+  const boks = document.getElementById("borteBoks");
+  const liste = document.getElementById("borteListe");
+  if (!cachedBorte) { boks.style.display = "none"; return; }
+
+  const naa = new Date();
+  const fra = new Date(naa.getFullYear(), naa.getMonth(), naa.getDate());
+  const til = new Date(fra);
+  til.setDate(til.getDate() + BORTE_DAGER);
+
+  const grupper = new Map();
+  cachedBorte.forEach(k => {
+    if (!KLUBB.test(k.borte || "") || KLUBB.test(k.hjemme || "")) return;
+    if (!serienErMed(k.divisjon)) return;
+    const m = String(k.dato || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!m) return;
+    const d = new Date(+m[1], +m[2] - 1, +m[3]);
+    if (d < fra || d >= til) return;
+
+    const lag = lagEtikett(k.borte, k.divisjon);
+    const motstander = (k.hjemme || "").trim();
+    const arena = (k.arena || "").trim();
+    const nokkel = lag + "|" + motstander + "|" + arena;
+    if (!grupper.has(nokkel)) grupper.set(nokkel, { lag, motstander, arena, forste: d, kamper: [] });
+    const g = grupper.get(nokkel);
+    const tid = (k.tid || "").trim();
+    const tekst = `${NB_WEEKDAYS[d.getDay()]} ${d.getDate()}/${d.getMonth() + 1}${tid ? " kl. " + tid : ""}`;
+    if (!g.kamper.some(x => x.tekst === tekst)) g.kamper.push({ d, tid, tekst });
+    if (d < g.forste) g.forste = d;
+  });
+
+  const rader = [...grupper.values()].sort((a, b) => a.forste - b.forste);
+  if (!rader.length) { boks.style.display = "none"; return; }
+
+  const vis = rader.slice(0, BORTE_MAKS_LINJER);
+  liste.innerHTML = vis.map(g => `
+    <div class="borte-rad">
+      <div class="borte-lag">${esc(g.lag)}</div>
+      <div class="borte-sted">${esc(g.motstander || g.arena)}${g.motstander && g.arena
+        ? ` <span class="borte-arena">(${esc(g.arena)})</span>` : ""}</div>
+      <div class="borte-dag">${g.kamper
+        .sort((a, b) => (a.d - b.d) || a.tid.localeCompare(b.tid))
+        .map(x => esc(x.tekst)).join(" + ")}</div>
+    </div>`).join("") +
+    (rader.length > vis.length
+      ? `<div class="borte-rad"><div></div><div class="borte-dag">+ ${rader.length - vis.length} lag til på bortebane</div></div>`
+      : "");
+  boks.style.display = "flex";
+}
+
+/* ============ MERKNAD ============ */
+function visMerknad(merknader) {
+  const boks = document.getElementById("merknadBox");
+  const felt = document.getElementById("merknadText");
+  if (!merknader.length) { boks.style.display = "none"; return; }
+  const flere = merknader.length > 1;
+  felt.replaceChildren(...merknader.map(({ lag, tekst }) => {
+    const rad = document.createElement("div");
+    rad.className = "note-item";
+    if (flere && lag) {
+      const navn = document.createElement("span");
+      navn.className = "note-lag";
+      navn.textContent = lag + ": ";
+      rad.append(navn);
+    }
+    rad.append(tekst);
+    return rad;
+  }));
+  boks.style.display = "flex";
+}
+
+tick();
+refreshData();
+setInterval(refreshData, REFRESH_DATA_MS);
+setInterval(tick, REFRESH_CLOCK_MS);
+
+// Telefonen pauser siden i bakgrunnen: hent på nytt når den åpnes igjen.
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") refreshData();
+});
+</script>
+</body>
+</html>
